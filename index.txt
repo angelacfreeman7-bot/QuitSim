@@ -1,0 +1,19 @@
+1:"$Sreact.fragment"
+2:I[9766,[],""]
+3:I[8924,[],""]
+4:I[1959,[],"ClientPageRoot"]
+5:I[9547,["974","static/chunks/app/page-35883847acf13405.js"],"default"]
+8:I[4431,[],"OutletBoundary"]
+a:I[5278,[],"AsyncMetadataOutlet"]
+c:I[4431,[],"ViewportBoundary"]
+e:I[4431,[],"MetadataBoundary"]
+f:"$Sreact.suspense"
+11:I[7150,[],""]
+:HL["/_next/static/css/979aea9fee8b8632.css","style"]
+0:{"P":null,"b":"QNXF8GYLxeeMXPbTeVSkL","p":"","c":["",""],"i":false,"f":[[["",{"children":["__PAGE__",{}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/979aea9fee8b8632.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","children":[["$","head",null,{"children":[["$","link",null,{"rel":"preconnect","href":"https://fonts.googleapis.com"}],["$","link",null,{"rel":"preconnect","href":"https://fonts.gstatic.com","crossOrigin":""}],["$","link",null,{"href":"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap","rel":"stylesheet"}]]}],["$","body",null,{"children":["$","$L2",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L3",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","div",null,{"className":"flex min-h-screen items-center justify-center","children":["$","div",null,{"className":"text-center","children":[["$","h1",null,{"className":"text-6xl font-bold text-[var(--accent)]","children":"404"}],["$","p",null,{"className":"mt-4 text-[var(--muted)]","children":"Page not found"}],["$","a",null,{"href":"/","className":"mt-6 inline-block rounded-full bg-[var(--accent)] px-6 py-2 text-sm font-semibold text-black","children":"Go Home"}]]}]}],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]]}]]}],{"children":["__PAGE__",["$","$1","c",{"children":[["$","$L4",null,{"Component":"$5","searchParams":{},"params":{},"promises":["$@6","$@7"]}],null,["$","$L8",null,{"children":["$L9",["$","$La",null,{"promise":"$@b"}]]}]]}],{},null,false]},null,false],["$","$1","h",{"children":[null,[["$","$Lc",null,{"children":"$Ld"}],null],["$","$Le",null,{"children":["$","div",null,{"hidden":true,"children":["$","$f",null,{"fallback":null,"children":"$L10"}]}]}]]}],false]],"m":"$undefined","G":["$11",[]],"s":false,"S":true}
+6:{}
+7:"$0:f:0:1:2:children:1:props:children:0:props:params"
+d:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","2",{"name":"theme-color","content":"#0a0a0a"}]]
+9:null
+b:{"metadata":[["$","title","0",{"children":"QuitSim — What If You Could Quit Your Job?"}],["$","meta","1",{"name":"description","content":"See your exact freedom date with Monte Carlo stress-testing, confidence scoring, and scenario planning. Know your number. Plan your exit. Quit with confidence."}],["$","meta","2",{"property":"og:title","content":"QuitSim — What If You Could Quit Your Job?"}],["$","meta","3",{"property":"og:description","content":"Financial simulator for life after quitting. See your runway, confidence score, and freedom date."}],["$","meta","4",{"property":"og:url","content":"https://quitsim.it.com"}],["$","meta","5",{"property":"og:site_name","content":"QuitSim"}],["$","meta","6",{"property":"og:type","content":"website"}],["$","meta","7",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","8",{"name":"twitter:title","content":"QuitSim — What If You Could Quit Your Job?"}],["$","meta","9",{"name":"twitter:description","content":"See your exact freedom date with Monte Carlo stress-testing and confidence scoring."}]],"error":null,"digest":"$undefined"}
+10:"$b:metadata"
