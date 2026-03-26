@@ -1,0 +1,186 @@
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { AnimatedNumber } from './AnimatedNumber';
+
+interface ConfidenceRingProps {
+  value: number;
+  context: string;
+  size?: number;
+  strokeWidth?: number;
+}
+
+function getColor(value: number): string {
+  if (value >= 70) return '#34d399';  // Warm mint
+  if (value >= 40) return '#FBBF24';  // Golden amber
+  return '#f87171';                   // Soft warm red
+}
+
+export function ConfidenceRing({
+  value,
+  context,
+  size = 200,
+  strokeWidth = 12,
+}: ConfidenceRingProps) {
+  const clamped = Math.max(0, Math.min(100, value));
+  const color = getColor(clamped);
+  const halfSize = size / 2;
+  const innerRadius = halfSize - strokeWidth;
+
+  // For 0-50%: only the right semicircle rotates from 180deg (hidden) to 0deg (half shown)
+  // For 50-100%: right is fully visible, left rotates from 180deg to 0deg
+  const rightRotation = clamped <= 50
+    ? `${180 - (clamped / 50) * 180}deg`
+    : '0deg';
+
+  const leftRotation = clamped <= 50
+    ? '180deg'
+    : `${180 - ((clamped - 50) / 50) * 180}deg`;
+
+  return (
+    <View
+      style={[styles.wrapper, { width: size, height: size }]}
+      accessible
+      accessibilityRole="progressbar"
+      accessibilityLabel={`Quit readiness ${clamped} percent. ${context}`}
+      accessibilityValue={{ min: 0, max: 100, now: clamped }}
+    >
+      {/* Background track ring */}
+      <View
+        style={[
+          styles.ring,
+          {
+            width: size,
+            height: size,
+            borderRadius: halfSize,
+            borderWidth: strokeWidth,
+            borderColor: '#E7E5E4',
+          },
+        ]}
+      />
+
+      {/* Right half mask — clips to right 50% of the circle */}
+      <View
+        style={[
+          styles.halfMask,
+          {
+            width: halfSize,
+            height: size,
+            left: halfSize,
+          },
+        ]}
+      >
+        <View
+          style={[
+            styles.halfCircle,
+            {
+              width: size,
+              height: size,
+              borderRadius: halfSize,
+              borderWidth: strokeWidth,
+              borderColor: color,
+              // Position so the full circle is anchored with its center at the left edge of the mask
+              left: -halfSize,
+              transform: [{ rotate: rightRotation }],
+            },
+          ]}
+        />
+      </View>
+
+      {/* Left half mask — clips to left 50% of the circle */}
+      <View
+        style={[
+          styles.halfMask,
+          {
+            width: halfSize,
+            height: size,
+            left: 0,
+          },
+        ]}
+      >
+        <View
+          style={[
+            styles.halfCircle,
+            {
+              width: size,
+              height: size,
+              borderRadius: halfSize,
+              borderWidth: strokeWidth,
+              borderColor: color,
+              // Position so the full circle is anchored with its center at the right edge of the mask
+              left: 0,
+              transform: [{ rotate: leftRotation }],
+            },
+          ]}
+        />
+      </View>
+
+      {/* Center content */}
+      <View
+        style={[
+          styles.center,
+          {
+            width: innerRadius * 2,
+            height: innerRadius * 2,
+            borderRadius: innerRadius,
+            top: strokeWidth,
+            left: strokeWidth,
+          },
+        ]}
+      >
+        <AnimatedNumber
+          value={clamped}
+          suffix="%"
+          style={[styles.valueText, { color }]}
+        />
+        <Text style={styles.label}>How Ready You Are</Text>
+        <Text style={styles.context} numberOfLines={2}>
+          {context}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  wrapper: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 8,
+  },
+  ring: {
+    position: 'absolute',
+  },
+  halfMask: {
+    position: 'absolute',
+    top: 0,
+    overflow: 'hidden',
+  },
+  halfCircle: {
+    position: 'absolute',
+    top: 0,
+  },
+  center: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  valueText: {
+    fontSize: 48,
+    fontWeight: '800',
+    fontVariant: ['tabular-nums'],
+  },
+  label: {
+    color: '#A8A29E',
+    fontSize: 13,
+    marginTop: 2,
+  },
+  context: {
+    color: '#78716C',
+    fontSize: 11,
+    fontStyle: 'italic',
+    marginTop: 4,
+    textAlign: 'center',
+    paddingHorizontal: 8,
+  },
+});

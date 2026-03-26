@@ -1,0 +1,146 @@
+const sharp = require('sharp');
+const { writeFileSync } = require('fs');
+const { join } = require('path');
+
+const ROOT = join(__dirname, '..');
+
+const SVG = `
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f1b3d"/>
+      <stop offset="50%" stop-color="#0d2847"/>
+      <stop offset="100%" stop-color="#0a3a4a"/>
+    </linearGradient>
+
+    <linearGradient id="case" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2a4a7a"/>
+      <stop offset="100%" stop-color="#1a3058"/>
+    </linearGradient>
+
+    <linearGradient id="arrow" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="60%" stop-color="#4ade80"/>
+      <stop offset="100%" stop-color="#86efac"/>
+    </linearGradient>
+
+    <linearGradient id="caseHL" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a6aaa" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#1a3058" stop-opacity="0"/>
+    </linearGradient>
+
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+
+  <!-- Briefcase -->
+  <g filter="url(#shadow)" transform="translate(512, 560)">
+    <!-- Handle -->
+    <rect x="-60" y="-150" width="120" height="44" rx="14"
+          fill="none" stroke="url(#case)" stroke-width="18"/>
+
+    <!-- Body -->
+    <rect x="-210" y="-106" width="420" height="270" rx="36"
+          fill="url(#case)"/>
+
+    <!-- Top highlight -->
+    <rect x="-210" y="-106" width="420" height="90" rx="36"
+          fill="url(#caseHL)"/>
+
+    <!-- Clasp -->
+    <rect x="-32" y="-10" width="64" height="10" rx="5"
+          fill="#4a7ab8" opacity="0.6"/>
+
+    <!-- Divider -->
+    <line x1="-170" y1="50" x2="170" y2="50"
+          stroke="#4a7ab8" stroke-width="2.5" opacity="0.25"/>
+
+    <!-- Break-free crack lines at top -->
+    <path d="M-45,-106 L-12,-62 L0,-106 L12,-62 L45,-106"
+          fill="none" stroke="#22c55e" stroke-width="3.5" opacity="0.45"/>
+  </g>
+
+  <!-- Arrow breaking free -->
+  <g filter="url(#glow)" transform="translate(512, 310)">
+    <!-- Shaft -->
+    <rect x="-16" y="-10" width="32" height="170" rx="16"
+          fill="url(#arrow)"/>
+
+    <!-- Arrowhead -->
+    <path d="M0,-90 L-60,4 L-32,4 L0,-44 L32,4 L60,4 Z"
+          fill="url(#arrow)"/>
+
+    <!-- Motion trails -->
+    <rect x="-56" y="68" width="22" height="5" rx="2.5"
+          fill="#4ade80" opacity="0.4"/>
+    <rect x="34" y="90" width="26" height="5" rx="2.5"
+          fill="#4ade80" opacity="0.3"/>
+    <rect x="-48" y="112" width="18" height="5" rx="2.5"
+          fill="#4ade80" opacity="0.2"/>
+    <rect x="42" y="132" width="14" height="4" rx="2"
+          fill="#4ade80" opacity="0.15"/>
+  </g>
+
+  <!-- Sparkles near arrow tip -->
+  <circle cx="466" cy="194" r="3.5" fill="#86efac" opacity="0.6"/>
+  <circle cx="558" cy="210" r="3" fill="#4ade80" opacity="0.5"/>
+  <circle cx="484" cy="178" r="2.5" fill="#bbf7d0" opacity="0.4"/>
+  <circle cx="544" cy="188" r="2" fill="#bbf7d0" opacity="0.35"/>
+  <circle cx="474" cy="214" r="2" fill="#86efac" opacity="0.3"/>
+</svg>
+`;
+
+async function generate() {
+  const svgBuf = Buffer.from(SVG);
+
+  // SVG for design tools
+  const svgPath = join(ROOT, 'mobile', 'assets', 'icon.svg');
+  writeFileSync(svgPath, SVG);
+  console.log('SVG:', svgPath);
+
+  // 1024x1024 Expo icon
+  await sharp(svgBuf).resize(1024, 1024).png().toFile(join(ROOT, 'mobile', 'assets', 'icon.png'));
+  console.log('icon.png: 1024x1024');
+
+  // Adaptive icon (Android)
+  await sharp(svgBuf).resize(1024, 1024).png().toFile(join(ROOT, 'mobile', 'assets', 'adaptive-icon.png'));
+  console.log('adaptive-icon.png: 1024x1024');
+
+  // Xcode asset catalog
+  const xcPath = join(ROOT, 'mobile', 'ios', 'QuitSim', 'Images.xcassets', 'AppIcon.appiconset', 'App-Icon-1024x1024@1x.png');
+  await sharp(svgBuf).resize(1024, 1024).png().toFile(xcPath);
+  console.log('Xcode AppIcon: 1024x1024');
+
+  // Splash: icon centered on dark bg
+  const iconSmall = await sharp(svgBuf).resize(400, 400).png().toBuffer();
+  const splashBg = Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="1284" height="2778"><rect width="1284" height="2778" fill="#0a0a0a"/></svg>`
+  );
+  await sharp(splashBg)
+    .resize(1284, 2778)
+    .composite([{ input: iconSmall, top: Math.round((2778 - 400) / 2), left: Math.round((1284 - 400) / 2) }])
+    .png()
+    .toFile(join(ROOT, 'mobile', 'assets', 'splash.png'));
+  console.log('splash.png: 1284x2778');
+
+  // Web PWA icons from same design
+  await sharp(svgBuf).resize(192, 192).png().toFile(join(ROOT, 'web', 'public', 'icon-192.png'));
+  await sharp(svgBuf).resize(512, 512).png().toFile(join(ROOT, 'web', 'public', 'icon-512.png'));
+  console.log('Web PWA icons: 192 + 512');
+
+  console.log('\nAll icons generated!');
+}
+
+generate().catch(console.error);

@@ -1,0 +1,18 @@
+{
+  "name": "quitsim",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "web",
+    "mobile",
+    "website"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=web",
+    "build": "npm run build --workspace=web",
+    "dev:mobile": "npm run start --workspace=mobile",
+    "dev:website": "npm run dev --workspace=website",
+    "build:website": "npm run build --workspace=website",
+    "test": "npx vitest run"
+  }
+}
