@@ -15,7 +15,7 @@ import {
   purchaseUpgrade,
   restorePurchases,
 } from '../lib/premium';
-import { BRAND } from '../lib/theme';
+import { useTheme } from '../lib/theme';
 import * as Haptics from 'expo-haptics';
 
 interface UpgradePromptProps {
@@ -35,6 +35,8 @@ const FEATURE_ICONS: (keyof typeof Ionicons.glyphMap)[] = [
 ];
 
 export function UpgradePrompt({ visible, onClose, feature }: UpgradePromptProps) {
+  const BRAND = useTheme();
+
   const handlePurchase = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     const success = await purchaseUpgrade();
@@ -67,9 +69,9 @@ export function UpgradePrompt({ visible, onClose, feature }: UpgradePromptProps)
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: BRAND.bg }]}>
         {/* Close */}
-        <Pressable style={styles.closeButton} onPress={onClose} accessibilityLabel="Close">
+        <Pressable style={[styles.closeButton, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }]} onPress={onClose} accessibilityLabel="Close">
           <Ionicons name="close" size={18} color={BRAND.textMuted} />
         </Pressable>
 
@@ -80,17 +82,17 @@ export function UpgradePrompt({ visible, onClose, feature }: UpgradePromptProps)
         />
 
         {/* Header */}
-        <View style={styles.crownBubble}>
+        <View style={[styles.crownBubble, { backgroundColor: BRAND.sunsetLight }]}>
           <Text style={styles.crown}>👑</Text>
         </View>
-        <Text style={styles.title}>Unlock Your Full Potential</Text>
-        <Text style={styles.subtitle}>Get the complete toolkit to plan your freedom</Text>
-        <Text style={styles.price}>{PRO_PRICE}</Text>
+        <Text style={[styles.title, { color: BRAND.text }]}>Unlock Your Full Potential</Text>
+        <Text style={[styles.subtitle, { color: BRAND.textSecondary }]}>Get the complete toolkit to plan your freedom</Text>
+        <Text style={[styles.price, { color: BRAND.sunset }]}>{PRO_PRICE}</Text>
 
         {feature && (
-          <View style={styles.featureHighlight}>
+          <View style={[styles.featureHighlight, { backgroundColor: BRAND.sunsetLight }]}>
             <Ionicons name="lock-open-outline" size={14} color={BRAND.sunset} />
-            <Text style={styles.featureHighlightText}>{feature}</Text>
+            <Text style={[styles.featureHighlightText, { color: BRAND.sunset }]}>{feature}</Text>
           </View>
         )}
 
@@ -98,28 +100,28 @@ export function UpgradePrompt({ visible, onClose, feature }: UpgradePromptProps)
         <View style={styles.featureList}>
           {featureList.map((f, i) => (
             <View key={i} style={styles.featureRow}>
-              <View style={styles.featureIconBubble}>
+              <View style={[styles.featureIconBubble, { backgroundColor: BRAND.primaryLight }]}>
                 <Ionicons name={FEATURE_ICONS[i] || 'checkmark'} size={16} color={BRAND.primary} />
               </View>
-              <Text style={styles.featureText}>{f}</Text>
+              <Text style={[styles.featureText, { color: BRAND.text }]}>{f}</Text>
             </View>
           ))}
         </View>
 
         {/* Free vs Pro comparison */}
-        <View style={styles.comparison}>
+        <View style={[styles.comparison, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }]}>
           <View style={styles.compCol}>
-            <Text style={styles.compHeader}>Free</Text>
-            <Text style={styles.compItem}>3 saved plans</Text>
-            <Text style={styles.compItem}>100 simulations</Text>
-            <Text style={styles.compItem}>Solo mode</Text>
+            <Text style={[styles.compHeader, { color: BRAND.textMuted }]}>Free</Text>
+            <Text style={[styles.compItem, { color: BRAND.textSecondary }]}>3 saved plans</Text>
+            <Text style={[styles.compItem, { color: BRAND.textSecondary }]}>100 simulations</Text>
+            <Text style={[styles.compItem, { color: BRAND.textSecondary }]}>Solo mode</Text>
           </View>
-          <View style={styles.compDivider} />
+          <View style={[styles.compDivider, { backgroundColor: BRAND.cardBorder }]} />
           <View style={styles.compCol}>
             <Text style={[styles.compHeader, { color: BRAND.sunset }]}>Pro</Text>
-            <Text style={[styles.compItem, styles.compItemPro]}>Unlimited plans</Text>
-            <Text style={[styles.compItem, styles.compItemPro]}>500 simulations</Text>
-            <Text style={[styles.compItem, styles.compItemPro]}>Couples mode</Text>
+            <Text style={[styles.compItem, styles.compItemPro, { color: BRAND.text }]}>Unlimited plans</Text>
+            <Text style={[styles.compItem, styles.compItemPro, { color: BRAND.text }]}>500 simulations</Text>
+            <Text style={[styles.compItem, styles.compItemPro, { color: BRAND.text }]}>Couples mode</Text>
           </View>
         </View>
 
@@ -140,10 +142,10 @@ export function UpgradePrompt({ visible, onClose, feature }: UpgradePromptProps)
         </Pressable>
 
         <Pressable style={styles.restoreButton} onPress={handleRestore}>
-          <Text style={styles.restoreText}>Restore Purchase</Text>
+          <Text style={[styles.restoreText, { color: BRAND.textMuted }]}>Restore Purchase</Text>
         </Pressable>
 
-        <Text style={styles.legalText}>
+        <Text style={[styles.legalText, { color: BRAND.textMuted }]}>
           Payment will be charged to your Apple ID account. Subscription
           automatically renews unless cancelled at least 24 hours before the
           end of the current period.
@@ -156,7 +158,6 @@ export function UpgradePrompt({ visible, onClose, feature }: UpgradePromptProps)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: BRAND.bg,
     alignItems: 'center',
     paddingHorizontal: 24,
     paddingTop: 60,
@@ -175,9 +176,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: BRAND.card,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
@@ -186,37 +185,31 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: BRAND.sunsetLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
   },
   crown: { fontSize: 36 },
   title: {
-    color: BRAND.text,
     fontSize: 24,
     fontWeight: '800',
     textAlign: 'center',
     marginBottom: 6,
   },
   subtitle: {
-    color: BRAND.textSecondary,
     fontSize: 14,
     textAlign: 'center',
     marginBottom: 4,
   },
   price: {
-    color: BRAND.sunset,
     fontSize: 18,
     fontWeight: '700',
     marginBottom: 16,
   },
-
   featureHighlight: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: BRAND.sunsetLight,
     borderWidth: 1,
     borderColor: 'rgba(249, 115, 22, 0.2)',
     borderRadius: 10,
@@ -224,43 +217,36 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginBottom: 20,
   },
-  featureHighlightText: { color: BRAND.sunset, fontSize: 13, fontWeight: '600' },
-
+  featureHighlightText: { fontSize: 13, fontWeight: '600' },
   featureList: { width: '100%', marginBottom: 16, gap: 10 },
   featureRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   featureIconBubble: {
     width: 32,
     height: 32,
     borderRadius: 10,
-    backgroundColor: BRAND.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  featureText: { color: BRAND.text, fontSize: 14, fontWeight: '500', flex: 1 },
-
+  featureText: { fontSize: 14, fontWeight: '500', flex: 1 },
   comparison: {
     flexDirection: 'row',
-    backgroundColor: BRAND.card,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     padding: 16,
     width: '100%',
     marginBottom: 20,
   },
   compCol: { flex: 1, alignItems: 'center', gap: 6 },
-  compDivider: { width: 1, backgroundColor: BRAND.cardBorder },
+  compDivider: { width: 1 },
   compHeader: {
-    color: BRAND.textMuted,
     fontSize: 13,
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 4,
   },
-  compItem: { color: BRAND.textSecondary, fontSize: 13 },
-  compItemPro: { color: BRAND.text, fontWeight: '600' },
-
+  compItem: { fontSize: 13 },
+  compItemPro: { fontWeight: '600' },
   purchaseButton: {
     width: '100%',
     borderRadius: 14,
@@ -275,12 +261,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   purchaseText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-
   restoreButton: { marginBottom: 16 },
-  restoreText: { color: BRAND.textMuted, fontSize: 13 },
-
+  restoreText: { fontSize: 13 },
   legalText: {
-    color: BRAND.textMuted,
     fontSize: 10,
     textAlign: 'center',
     lineHeight: 14,

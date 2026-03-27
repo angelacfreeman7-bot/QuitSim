@@ -13,7 +13,7 @@ import { FAQScreen } from '../screens/FAQScreen';
 const RevenueCatTestScreen = __DEV__
   ? require('../screens/RevenueCatTestScreen').RevenueCatTestScreen
   : () => null;
-import { BRAND } from '../lib/theme';
+import { useTheme } from '../lib/theme';
 import * as Haptics from 'expo-haptics';
 
 const Tab = createBottomTabNavigator();
@@ -26,6 +26,8 @@ const TAB_ICONS: Record<string, { active: keyof typeof Ionicons.glyphMap; inacti
 };
 
 export function TabNavigator() {
+  const BRAND = useTheme();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({

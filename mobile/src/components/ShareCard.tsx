@@ -1,18 +1,12 @@
 import React, { forwardRef } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { BRAND } from '../lib/theme';
+import { useTheme } from '../lib/theme';
 
 interface ShareCardProps {
   quitConfidence: number;
   runwayMonths: number;
   stressTestPct: number;
   freedomDate: string | null;
-}
-
-function getConfidenceColor(confidence: number): string {
-  if (confidence >= 70) return BRAND.success;
-  if (confidence >= 40) return BRAND.warning;
-  return BRAND.danger;
 }
 
 function formatFreedomDate(iso: string | null): string {
@@ -23,42 +17,50 @@ function formatFreedomDate(iso: string | null): string {
 
 export const ShareCard = forwardRef<View, ShareCardProps>(
   ({ quitConfidence, runwayMonths, stressTestPct, freedomDate }, ref) => {
+    const BRAND = useTheme();
+
+    const getConfidenceColor = (confidence: number): string => {
+      if (confidence >= 70) return BRAND.success;
+      if (confidence >= 40) return BRAND.warning;
+      return BRAND.danger;
+    };
+
     const confidenceColor = getConfidenceColor(quitConfidence);
 
     return (
       <View
         ref={ref}
         collapsable={false}
-        style={styles.card}
+        style={[styles.card, { backgroundColor: BRAND.bg, borderColor: BRAND.cardBorder }]}
       >
         <View style={styles.inner}>
-          <Text style={styles.branding}>QuitSim</Text>
+          <Text style={[styles.branding, { color: BRAND.textSecondary }]}>QuitSim</Text>
 
           <Text style={[styles.bigNumber, { color: confidenceColor }]}>
             {quitConfidence}%
           </Text>
-          <Text style={styles.scoreLabel}>Quit Readiness Score</Text>
+          <Text style={[styles.scoreLabel, { color: BRAND.textMuted }]}>Quit Readiness Score</Text>
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: BRAND.cardBorder }]} />
 
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>{runwayMonths}</Text>
-              <Text style={styles.statLabel}>Runway Mo.</Text>
+              <Text style={[styles.statValue, { color: BRAND.text }]}>{runwayMonths}</Text>
+              <Text style={[styles.statLabel, { color: BRAND.textSecondary }]}>Runway Mo.</Text>
             </View>
-            <View style={styles.statSeparator} />
+            <View style={[styles.statSeparator, { backgroundColor: BRAND.cardBorder }]} />
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>{stressTestPct}%</Text>
-              <Text style={styles.statLabel}>Stress Test</Text>
+              <Text style={[styles.statValue, { color: BRAND.text }]}>{stressTestPct}%</Text>
+              <Text style={[styles.statLabel, { color: BRAND.textSecondary }]}>Stress Test</Text>
             </View>
-            <View style={styles.statSeparator} />
+            <View style={[styles.statSeparator, { backgroundColor: BRAND.cardBorder }]} />
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>{formatFreedomDate(freedomDate)}</Text>
-              <Text style={styles.statLabel}>Freedom Date</Text>
+              <Text style={[styles.statValue, { color: BRAND.text }]}>{formatFreedomDate(freedomDate)}</Text>
+              <Text style={[styles.statLabel, { color: BRAND.textSecondary }]}>Freedom Date</Text>
             </View>
           </View>
 
-          <Text style={styles.tagline}>
+          <Text style={[styles.tagline, { color: BRAND.textSecondary }]}>
             Find your freedom date at quitsim.it.com
           </Text>
         </View>
@@ -73,9 +75,7 @@ const styles = StyleSheet.create({
   card: {
     width: 375,
     height: 500,
-    backgroundColor: BRAND.bg,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     borderRadius: 20,
     overflow: 'hidden',
   },
@@ -87,7 +87,6 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
   branding: {
-    color: BRAND.textSecondary,
     fontSize: 16,
     fontWeight: '600',
     letterSpacing: 2,
@@ -101,7 +100,6 @@ const styles = StyleSheet.create({
     lineHeight: 100,
   },
   scoreLabel: {
-    color: BRAND.textMuted,
     fontSize: 16,
     fontWeight: '500',
     marginTop: 8,
@@ -110,7 +108,6 @@ const styles = StyleSheet.create({
   divider: {
     width: 60,
     height: 1,
-    backgroundColor: BRAND.cardBorder,
     marginBottom: 32,
   },
   statsRow: {
@@ -125,24 +122,20 @@ const styles = StyleSheet.create({
     minWidth: 80,
   },
   statValue: {
-    color: BRAND.text,
     fontSize: 20,
     fontWeight: '700',
     fontVariant: ['tabular-nums'],
     marginBottom: 4,
   },
   statLabel: {
-    color: BRAND.textSecondary,
     fontSize: 11,
     fontWeight: '500',
   },
   statSeparator: {
     width: 1,
     height: 32,
-    backgroundColor: BRAND.cardBorder,
   },
   tagline: {
-    color: BRAND.textSecondary,
     fontSize: 12,
     fontWeight: '400',
   },

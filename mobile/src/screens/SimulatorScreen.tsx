@@ -26,7 +26,7 @@ import { InfoTip } from '../components/InfoTip';
 import { shareAsImage } from '../lib/shareImage';
 import { showRealityCheck } from '../lib/realityCheck';
 import { FUN_PRESETS, getEasterEggText } from '../lib/funPresets';
-import { BRAND } from '../lib/theme';
+import { useTheme } from '../lib/theme';
 import ConfettiCannon from 'react-native-confetti-cannon';
 import * as Haptics from 'expo-haptics';
 
@@ -38,6 +38,7 @@ const formatCurrency = (v: number) =>
   }).format(v);
 
 export function SimulatorScreen() {
+  const BRAND = useTheme();
   const {
     params, setParams, applyPreset, result, simulate, savePlan, plans, disclaimerAccepted,
     funMode, funModeUnlocked, activeFunPreset, toggleFunMode, applyFunPreset,
@@ -71,10 +72,10 @@ export function SimulatorScreen() {
   if (!result) {
     simulate();
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: BRAND.bg }]}>
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingEmoji}>🎲</Text>
-          <Text style={styles.loadingText}>Running simulations...</Text>
+          <Text style={[styles.loadingText, { color: BRAND.textSecondary }]}>Running simulations...</Text>
         </View>
       </SafeAreaView>
     );
@@ -113,7 +114,7 @@ export function SimulatorScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, activeFunPreset && { backgroundColor: activeFunPreset.screenBg }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: BRAND.bg }, activeFunPreset && { backgroundColor: activeFunPreset.screenBg }]}>
       {showConfetti && (
         <ConfettiCannon
           ref={confettiRef}
@@ -143,24 +144,24 @@ export function SimulatorScreen() {
         onRequestClose={() => setShowSaveDialog(false)}
       >
         <View style={styles.dialogOverlay}>
-          <View style={styles.dialogCard}>
-            <Text style={styles.dialogTitle}>Save this plan</Text>
+          <View style={[styles.dialogCard, { backgroundColor: BRAND.card }]}>
+            <Text style={[styles.dialogTitle, { color: BRAND.text }]}>Save this plan</Text>
             <TextInput
-              style={styles.dialogInput}
+              style={[styles.dialogInput, { backgroundColor: BRAND.bg, borderColor: BRAND.cardBorder, color: BRAND.text }]}
               placeholder="My quit plan"
-              placeholderTextColor="#78716C"
+              placeholderTextColor={BRAND.textMuted}
               value={planName}
               onChangeText={setPlanName}
               autoFocus
             />
             <View style={styles.dialogActions}>
               <Pressable
-                style={styles.dialogCancel}
+                style={[styles.dialogCancel, { borderColor: BRAND.cardBorder }]}
                 onPress={() => setShowSaveDialog(false)}
               >
-                <Text style={styles.dialogCancelText}>Cancel</Text>
+                <Text style={[styles.dialogCancelText, { color: BRAND.textSecondary }]}>Cancel</Text>
               </Pressable>
-              <Pressable style={styles.dialogSave} onPress={confirmSave}>
+              <Pressable style={[styles.dialogSave, { backgroundColor: BRAND.primary }]} onPress={confirmSave}>
                 <Text style={styles.dialogSaveText}>Save</Text>
               </Pressable>
             </View>
@@ -170,15 +171,15 @@ export function SimulatorScreen() {
 
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.titleRow}>
-          <Text style={styles.title}>
+          <Text style={[styles.title, { color: BRAND.text }]}>
             {funMode ? '✨ Dream Mode' : 'Simulate Your Quit'}
           </Text>
           {funModeUnlocked && (
             <Pressable
-              style={[styles.funToggle, funMode && styles.funToggleActive]}
+              style={[styles.funToggle, { borderColor: BRAND.cardBorder }, funMode && styles.funToggleActive]}
               onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); toggleFunMode(); }}
             >
-              <Text style={styles.funToggleText}>
+              <Text style={[styles.funToggleText, { color: BRAND.text }]}>
                 {funMode ? '🎪 ON' : '🎪 Fun'}
               </Text>
             </Pressable>
@@ -191,10 +192,10 @@ export function SimulatorScreen() {
             <Pressable
               onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); undoParams(); }}
             >
-              <Text style={styles.undoTextActive}>Undo</Text>
+              <Text style={[styles.undoTextActive, { color: BRAND.primary }]}>Undo</Text>
             </Pressable>
           ) : (
-            <Text style={styles.undoTextDisabled}>Undo</Text>
+            <Text style={[styles.undoTextDisabled, { color: BRAND.textMuted }]}>Undo</Text>
           )}
           <Pressable
             onPress={() => {
@@ -205,7 +206,7 @@ export function SimulatorScreen() {
               ]);
             }}
           >
-            <Text style={styles.resetText}>Reset</Text>
+            <Text style={[styles.resetText, { color: BRAND.textSecondary }]}>Reset</Text>
           </Pressable>
         </View>
 
@@ -231,16 +232,16 @@ export function SimulatorScreen() {
                 style={[
                   styles.funChip,
                   { backgroundColor: activeFunPreset?.id === preset.id ? preset.bgColor : BRAND.card,
-                    borderColor: activeFunPreset?.id === preset.id ? preset.color : BRAND.cardBorder },
+                    borderColor: activeFunPreset?.id === preset.id ? preset.color : BRAND.cardBorder } as any,
                 ]}
                 onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); applyFunPreset(preset); }}
               >
                 <Text style={styles.funChipEmoji}>{preset.emoji}</Text>
                 <View>
-                  <Text style={[styles.funChipName, { color: activeFunPreset?.id === preset.id ? preset.color : BRAND.text }]}>
+                  <Text style={[styles.funChipName, { color: activeFunPreset?.id === preset.id ? preset.color : BRAND.text } as any]}>
                     {preset.name}
                   </Text>
-                  <Text style={styles.funChipTagline}>{preset.tagline}</Text>
+                  <Text style={[styles.funChipTagline, { color: BRAND.textSecondary }]}>{preset.tagline}</Text>
                 </View>
               </Pressable>
             ))}
@@ -257,17 +258,17 @@ export function SimulatorScreen() {
             {PRESETS.map((preset) => (
               <Pressable
                 key={preset.id}
-                style={styles.presetButton}
+                style={[styles.presetButton, { borderColor: BRAND.cardBorder }]}
                 onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); applyPreset(preset.params); }}
               >
-                <Text style={styles.presetText}>{preset.name}</Text>
+                <Text style={[styles.presetText, { color: BRAND.text }]}>{preset.name}</Text>
               </Pressable>
             ))}
           </ScrollView>
         )}
 
         {/* Sliders */}
-        <View style={[styles.sliderCard, activeFunPreset && { backgroundColor: activeFunPreset.bgColor, borderWidth: 1, borderColor: activeFunPreset.color + '30' }]}>
+        <View style={[styles.sliderCard, { backgroundColor: BRAND.card }, activeFunPreset && { backgroundColor: activeFunPreset.bgColor, borderWidth: 1, borderColor: activeFunPreset.color + '30' }]}>
           <SliderRow
             label="How Much Pay You Give Up"
             value={params.incomeDropPct}
@@ -320,16 +321,16 @@ export function SimulatorScreen() {
           />
         </View>
 
-        <Text style={styles.hintText}>Explore freely — undo any change or reset anytime</Text>
+        <Text style={[styles.hintText, { color: BRAND.textMuted }]}>Explore freely — undo any change or reset anytime</Text>
 
         {/* Black Swan Toggle */}
-        <View style={styles.blackSwanCard}>
+        <View style={[styles.blackSwanCard, { backgroundColor: BRAND.card }]}>
           <View style={styles.blackSwanTextCol}>
             <View style={styles.inlineRow}>
-              <Text style={styles.blackSwanLabel}>Include surprise expenses</Text>
+              <Text style={[styles.blackSwanLabel, { color: BRAND.text }]}>Include surprise expenses</Text>
               <InfoTip text="Life throws curveballs — a car breakdown, a medical bill, a broken appliance. This adds random surprise costs to see if your plan still works when things go wrong. We recommend keeping this on." />
             </View>
-            <Text style={styles.blackSwanSubtitle}>What happens if your car breaks down or you get a surprise bill?</Text>
+            <Text style={[styles.blackSwanSubtitle, { color: BRAND.textSecondary }]}>What happens if your car breaks down or you get a surprise bill?</Text>
           </View>
           <Switch
             value={!!params.blackSwan}
@@ -343,26 +344,26 @@ export function SimulatorScreen() {
 
         {/* Stats */}
         <View style={styles.statsRow}>
-          <View style={[styles.stat, activeFunPreset && { backgroundColor: activeFunPreset.bgColor }]}>
-            <AnimatedNumber value={result.quitConfidence} suffix="%" style={[styles.statValue, activeFunPreset ? { color: activeFunPreset.color } : undefined]} />
+          <View style={[styles.stat, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }, activeFunPreset && { backgroundColor: activeFunPreset.bgColor }]}>
+            <AnimatedNumber value={result.quitConfidence} suffix="%" style={[styles.statValue, { color: BRAND.text }, activeFunPreset ? { color: activeFunPreset.color } : undefined]} />
             <View style={styles.inlineRow}>
-              <Text style={styles.statLabel}>Readiness</Text>
+              <Text style={[styles.statLabel, { color: BRAND.textSecondary }]}>Readiness</Text>
               <InfoTip text="Your overall score out of 100. It looks at how long your money lasts, how your plan holds up when bad stuff happens, and how much of a savings cushion you have. 70%+ means you\u2019re in good shape." />
             </View>
           </View>
-          <View style={[styles.stat, activeFunPreset && { backgroundColor: activeFunPreset.bgColor }]}>
-            <AnimatedNumber value={result.runwayMonths} style={[styles.statValue, activeFunPreset ? { color: activeFunPreset.color } : undefined]} />
-            <Text style={styles.statLabel}>Months</Text>
+          <View style={[styles.stat, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }, activeFunPreset && { backgroundColor: activeFunPreset.bgColor }]}>
+            <AnimatedNumber value={result.runwayMonths} style={[styles.statValue, { color: BRAND.text }, activeFunPreset ? { color: activeFunPreset.color } : undefined]} />
+            <Text style={[styles.statLabel, { color: BRAND.textSecondary }]}>Months</Text>
           </View>
-          <View style={[styles.stat, activeFunPreset && { backgroundColor: activeFunPreset.bgColor }]}>
-            <AnimatedNumber value={result.monteCarlo.successRate} suffix="%" style={[styles.statValue, activeFunPreset ? { color: activeFunPreset.color } : undefined]} />
+          <View style={[styles.stat, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }, activeFunPreset && { backgroundColor: activeFunPreset.bgColor }]}>
+            <AnimatedNumber value={result.monteCarlo.successRate} suffix="%" style={[styles.statValue, { color: BRAND.text }, activeFunPreset ? { color: activeFunPreset.color } : undefined]} />
             <View style={styles.inlineRow}>
-              <Text style={styles.statLabel}>&ldquo;What if&rdquo;</Text>
+              <Text style={[styles.statLabel, { color: BRAND.textSecondary }]}>&ldquo;What if&rdquo;</Text>
               <InfoTip text="We tested your plan hundreds of times with random bad luck added in. This is how often your money still lasted. 80%+ means your plan is solid even when things go wrong." />
             </View>
           </View>
-          <View style={[styles.stat, activeFunPreset && { backgroundColor: activeFunPreset.bgColor }]}>
-            <Text style={[styles.statValue, activeFunPreset && { color: activeFunPreset.color }]}>
+          <View style={[styles.stat, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }, activeFunPreset && { backgroundColor: activeFunPreset.bgColor }]}>
+            <Text style={[styles.statValue, { color: BRAND.text }, activeFunPreset && { color: activeFunPreset.color }]}>
               {result.freedomDate
                 ? (() => {
                     const d = new Date(result.freedomDate);
@@ -371,7 +372,7 @@ export function SimulatorScreen() {
                 : '\u2014'}
             </Text>
             <View style={styles.inlineRow}>
-              <Text style={styles.statLabel}>Target Date</Text>
+              <Text style={[styles.statLabel, { color: BRAND.textSecondary }]}>Target Date</Text>
               <InfoTip text="The earliest month we think you could quit and be financially okay, based on these settings." />
             </View>
           </View>
@@ -383,9 +384,9 @@ export function SimulatorScreen() {
         {/* Fun Mode narrative */}
         {funMode && activeFunPreset && (
           <View style={[styles.funNarrative, { backgroundColor: activeFunPreset.bgColor, borderColor: activeFunPreset.color }]}>
-            <Text style={styles.funNarrativePrefix}>{activeFunPreset.narrative.prefix}</Text>
-            <Text style={styles.funNarrativeSummary}>{activeFunPreset.narrative.summary}</Text>
-            <Text style={styles.funNarrativeJoke}>{activeFunPreset.narrative.joke}</Text>
+            <Text style={[styles.funNarrativePrefix, { color: BRAND.text }]}>{activeFunPreset.narrative.prefix}</Text>
+            <Text style={[styles.funNarrativeSummary, { color: BRAND.textSecondary }]}>{activeFunPreset.narrative.summary}</Text>
+            <Text style={[styles.funNarrativeJoke, { color: BRAND.textSecondary }]}>{activeFunPreset.narrative.joke}</Text>
             {result && getEasterEggText(result.quitConfidence, activeFunPreset.id) && (
               <Text style={[styles.funEasterEgg, { color: activeFunPreset.color }]}>
                 {getEasterEggText(result.quitConfidence, activeFunPreset.id)}
@@ -398,7 +399,7 @@ export function SimulatorScreen() {
         {result.quitConfidence > 80 && (
           <View style={styles.realityBanner}>
             <Text style={styles.realityIcon}>🔍</Text>
-            <Text style={styles.realityText}>
+            <Text style={[styles.realityText, { color: BRAND.warning }]}>
               Great progress! For the most accurate picture, review the assumptions below and chat with a financial advisor.
             </Text>
           </View>
@@ -406,7 +407,7 @@ export function SimulatorScreen() {
 
         {/* MC detail */}
         <View style={styles.mcDetail}>
-          <Text style={styles.mcText}>
+          <Text style={[styles.mcText, { color: BRAND.textMuted }]}>
             If things go badly: {result.monteCarlo.p10}mo · Typical:{' '}
             {result.monteCarlo.median}mo · If things go well: {result.monteCarlo.p90}mo
           </Text>
@@ -434,7 +435,7 @@ export function SimulatorScreen() {
           style={styles.disclaimerLink}
           onPress={() => setShowDisclaimer(true)}
         >
-          <Text style={styles.disclaimerLinkText}>Read Full Disclaimer</Text>
+          <Text style={[styles.disclaimerLinkText, { color: BRAND.textSecondary }]}>Read Full Disclaimer</Text>
         </Pressable>
       </ScrollView>
 
@@ -473,15 +474,16 @@ function SliderRow({
   onValueChange: (v: number) => void;
   infoText?: string;
 }) {
+  const BRAND = useTheme();
   const display = format ? format(value) : `${value}${suffix || ''}`;
   return (
     <View style={styles.sliderRow}>
       <View style={styles.sliderHeader}>
         <View style={styles.inlineRow}>
-          <Text style={styles.sliderLabel}>{label}</Text>
+          <Text style={[styles.sliderLabel, { color: BRAND.textSecondary }]}>{label}</Text>
           {infoText && <InfoTip text={infoText} />}
         </View>
-        <Text style={styles.sliderValue}>{display}</Text>
+        <Text style={[styles.sliderValue, { color: BRAND.text }]}>{display}</Text>
       </View>
       <Slider
         style={styles.slider}
@@ -502,21 +504,20 @@ function SliderRow({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: BRAND.bg },
+  container: { flex: 1 },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   loadingEmoji: { fontSize: 40, marginBottom: 12 },
-  loadingText: { color: BRAND.textSecondary, fontSize: 16 },
+  loadingText: { fontSize: 16 },
   scroll: { padding: 24 },
   titleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   undoResetRow: { flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', gap: 16, marginBottom: 8 },
-  undoTextActive: { color: BRAND.primary, fontSize: 13 },
-  undoTextDisabled: { color: BRAND.textMuted, fontSize: 13 },
-  resetText: { color: BRAND.textSecondary, fontSize: 13 },
-  hintText: { color: BRAND.textMuted, fontSize: 11, textAlign: 'center', marginBottom: 8 },
-  title: { color: BRAND.text, fontSize: 20, fontWeight: '700' },
+  undoTextActive: { fontSize: 13 },
+  undoTextDisabled: { fontSize: 13 },
+  resetText: { fontSize: 13 },
+  hintText: { fontSize: 11, textAlign: 'center', marginBottom: 8 },
+  title: { fontSize: 20, fontWeight: '700' },
   funToggle: {
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 6,
@@ -525,7 +526,7 @@ const styles = StyleSheet.create({
     borderColor: '#fbbf24',
     backgroundColor: 'rgba(251, 191, 36, 0.12)',
   },
-  funToggleText: { color: BRAND.text, fontSize: 13, fontWeight: '600' },
+  funToggleText: { fontSize: 13, fontWeight: '600' },
   fantasyBanner: {
     backgroundColor: 'rgba(168, 85, 247, 0.08)',
     borderWidth: 1,
@@ -547,29 +548,27 @@ const styles = StyleSheet.create({
   },
   funChipEmoji: { fontSize: 22 },
   funChipName: { fontSize: 13, fontWeight: '600' },
-  funChipTagline: { color: BRAND.textSecondary, fontSize: 10, marginTop: 1 },
+  funChipTagline: { fontSize: 10, marginTop: 1 },
   funNarrative: {
     borderWidth: 1,
     borderRadius: 12,
     padding: 14,
     marginBottom: 12,
   },
-  funNarrativePrefix: { color: BRAND.text, fontSize: 14, fontWeight: '600', marginBottom: 6 },
-  funNarrativeSummary: { color: BRAND.textSecondary, fontSize: 13, lineHeight: 19, marginBottom: 8 },
-  funNarrativeJoke: { color: BRAND.textSecondary, fontSize: 12, fontStyle: 'italic' },
+  funNarrativePrefix: { fontSize: 14, fontWeight: '600', marginBottom: 6 },
+  funNarrativeSummary: { fontSize: 13, lineHeight: 19, marginBottom: 8 },
+  funNarrativeJoke: { fontSize: 12, fontStyle: 'italic' },
   funEasterEgg: { fontSize: 13, fontWeight: '600', marginTop: 8 },
   presetRow: { marginBottom: 16 },
   presetButton: {
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     borderRadius: 8,
     paddingHorizontal: 14,
     paddingVertical: 8,
     marginRight: 8,
   },
-  presetText: { color: BRAND.text, fontSize: 13 },
+  presetText: { fontSize: 13 },
   sliderCard: {
-    backgroundColor: BRAND.card,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -582,16 +581,14 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   inlineRow: { flexDirection: 'row', alignItems: 'center', gap: 4, flexShrink: 1 },
-  sliderLabel: { color: BRAND.textSecondary, fontSize: 13, flexShrink: 1 },
+  sliderLabel: { fontSize: 13, flexShrink: 1 },
   sliderValue: {
-    color: BRAND.text,
     fontSize: 13,
     fontWeight: '600',
     fontVariant: ['tabular-nums'],
   },
   slider: { width: '100%', height: 36 },
   blackSwanCard: {
-    backgroundColor: BRAND.card,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -600,23 +597,27 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   blackSwanTextCol: { flex: 1, marginRight: 12 },
-  blackSwanLabel: { color: BRAND.text, fontSize: 14, fontWeight: '600' },
-  blackSwanSubtitle: { color: BRAND.textSecondary, fontSize: 12, marginTop: 4, lineHeight: 17 },
+  blackSwanLabel: { fontSize: 14, fontWeight: '600' },
+  blackSwanSubtitle: { fontSize: 12, marginTop: 4, lineHeight: 17 },
   statsRow: { flexDirection: 'row', gap: 8, marginBottom: 8 },
   stat: {
     flex: 1,
-    backgroundColor: BRAND.card,
     borderRadius: 12,
     padding: 12,
     alignItems: 'center',
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   statValue: {
-    color: BRAND.text,
     fontSize: 22,
     fontWeight: '700',
     fontVariant: ['tabular-nums'],
   },
-  statLabel: { color: BRAND.textSecondary, fontSize: 10, marginTop: 2 },
+  statLabel: { fontSize: 10, marginTop: 2 },
 
   // MC detail
   mcDetail: {
@@ -624,30 +625,42 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingVertical: 8,
   },
-  mcText: { color: BRAND.textMuted, fontSize: 11, fontVariant: ['tabular-nums'] },
+  mcText: { fontSize: 11, fontVariant: ['tabular-nums'] },
 
   // Actions
   actionRow: { flexDirection: 'row', gap: 12, marginBottom: 20 },
   saveButton: {
     flex: 1,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
-    borderRadius: 10,
+    borderColor: 'rgba(16, 185, 129, 0.3)',
+    backgroundColor: 'rgba(16, 185, 129, 0.06)',
+    borderRadius: 12,
     height: 48,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  saveButtonText: { color: BRAND.text, fontSize: 13, fontWeight: '500' },
+  saveButtonText: { color: '#059669', fontSize: 13, fontWeight: '600' },
   shareButton: {
     flex: 1,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
-    borderRadius: 10,
+    borderColor: 'rgba(14, 165, 233, 0.3)',
+    backgroundColor: 'rgba(14, 165, 233, 0.06)',
+    borderRadius: 12,
     height: 48,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#0EA5E9',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  shareButtonText: { color: BRAND.text, fontSize: 13, fontWeight: '500' },
+  shareButtonText: { color: '#0EA5E9', fontSize: 13, fontWeight: '600' },
 
   // Save dialog
   dialogOverlay: {
@@ -658,25 +671,20 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   dialogCard: {
-    backgroundColor: BRAND.card,
     borderRadius: 16,
     padding: 24,
     width: '100%',
   },
   dialogTitle: {
-    color: BRAND.text,
     fontSize: 18,
     fontWeight: '700',
     marginBottom: 16,
   },
   dialogInput: {
-    backgroundColor: BRAND.bg,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     borderRadius: 8,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    color: BRAND.text,
     fontSize: 15,
     marginBottom: 16,
   },
@@ -684,16 +692,14 @@ const styles = StyleSheet.create({
   dialogCancel: {
     flex: 1,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     borderRadius: 8,
     height: 44,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  dialogCancelText: { color: BRAND.textSecondary, fontSize: 14 },
+  dialogCancelText: { fontSize: 14 },
   dialogSave: {
     flex: 1,
-    backgroundColor: BRAND.primary,
     borderRadius: 8,
     height: 44,
     justifyContent: 'center',
@@ -714,12 +720,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   realityIcon: { fontSize: 16 },
-  realityText: { color: BRAND.warning, fontSize: 12, lineHeight: 17, flex: 1 },
+  realityText: { fontSize: 12, lineHeight: 17, flex: 1 },
 
   // Disclaimer link
   disclaimerLink: { alignItems: 'center', marginBottom: 20 },
   disclaimerLinkText: {
-    color: BRAND.textSecondary,
     fontSize: 12,
     textDecorationLine: 'underline',
   },

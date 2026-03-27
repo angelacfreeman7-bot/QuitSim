@@ -7,7 +7,7 @@ import {
   Modal,
   StyleSheet,
 } from 'react-native';
-import { BRAND } from '../lib/theme';
+import { useTheme } from '../lib/theme';
 
 interface DisclaimerModalProps {
   visible: boolean;
@@ -56,6 +56,7 @@ export function DisclaimerModal({
   dismissible = false,
   onDismiss,
 }: DisclaimerModalProps) {
+  const BRAND = useTheme();
   const [scrolledToBottom, setScrolledToBottom] = useState(false);
 
   const handleScroll = (event: any) => {
@@ -72,43 +73,44 @@ export function DisclaimerModal({
       transparent={false}
       onRequestClose={dismissible ? onDismiss : undefined}
     >
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: BRAND.bg }]}>
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.icon}>⚠️</Text>
-          <Text style={styles.title}>Legal Disclaimer</Text>
+          <Text style={[styles.title, { color: BRAND.text }]}>Legal Disclaimer</Text>
           {dismissible && (
-            <Pressable style={styles.closeButton} onPress={onDismiss}>
-              <Text style={styles.closeText}>✕</Text>
+            <Pressable style={[styles.closeButton, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }]} onPress={onDismiss}>
+              <Text style={{ color: BRAND.textMuted, fontSize: 16 }}>✕</Text>
             </Pressable>
           )}
         </View>
 
         {/* Scrollable disclaimer text */}
         <ScrollView
-          style={styles.scrollArea}
+          style={[styles.scrollArea, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }]}
           contentContainerStyle={styles.scrollContent}
           onScroll={handleScroll}
           scrollEventThrottle={100}
         >
-          <Text style={styles.disclaimerText}>{DISCLAIMER_TEXT}</Text>
+          <Text style={[styles.disclaimerText, { color: BRAND.textSecondary }]}>{DISCLAIMER_TEXT}</Text>
         </ScrollView>
 
         {/* Accept / Close button */}
         {dismissible ? (
-          <Pressable style={styles.acceptButton} onPress={onDismiss}>
+          <Pressable style={[styles.acceptButton, { backgroundColor: BRAND.sunset }]} onPress={onDismiss}>
             <Text style={styles.acceptText}>Close</Text>
           </Pressable>
         ) : (
           <>
             {!scrolledToBottom && (
-              <Text style={styles.scrollHint}>
+              <Text style={[styles.scrollHint, { color: BRAND.warning }]}>
                 Scroll to the bottom to accept
               </Text>
             )}
             <Pressable
               style={[
                 styles.acceptButton,
+                { backgroundColor: BRAND.sunset },
                 !scrolledToBottom && styles.acceptDisabled,
               ]}
               onPress={onAccept}
@@ -117,7 +119,7 @@ export function DisclaimerModal({
               <Text
                 style={[
                   styles.acceptText,
-                  !scrolledToBottom && styles.acceptTextDisabled,
+                  !scrolledToBottom && { color: BRAND.textMuted },
                 ]}
               >
                 I Understand and Accept
@@ -133,7 +135,6 @@ export function DisclaimerModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: BRAND.bg,
     paddingTop: 60,
     paddingHorizontal: 20,
     paddingBottom: 40,
@@ -143,7 +144,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   icon: { fontSize: 40, marginBottom: 8 },
-  title: { color: BRAND.text, fontSize: 22, fontWeight: '800' },
+  title: { fontSize: 22, fontWeight: '800' },
   closeButton: {
     position: 'absolute',
     top: 0,
@@ -151,37 +152,29 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: BRAND.card,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  closeText: { color: '#A8A29E', fontSize: 16 },
   scrollArea: {
     flex: 1,
-    backgroundColor: BRAND.card,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     marginBottom: 16,
   },
   scrollContent: {
     padding: 16,
   },
   disclaimerText: {
-    color: BRAND.textSecondary,
     fontSize: 13,
     lineHeight: 20,
   },
   scrollHint: {
-    color: BRAND.warning,
     fontSize: 12,
     textAlign: 'center',
     marginBottom: 8,
   },
   acceptButton: {
-    backgroundColor: BRAND.sunset,
     borderRadius: 12,
     height: 52,
     justifyContent: 'center',
@@ -194,8 +187,5 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '700',
-  },
-  acceptTextDisabled: {
-    color: BRAND.textMuted,
   },
 });

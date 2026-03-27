@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { BRAND } from '../lib/theme';
+import { useTheme } from '../lib/theme';
 
 interface Props {
   currentConfidence: number;
@@ -18,6 +18,7 @@ export function WeeklyProgressBanner({
   previousRunway,
   recordedAt,
 }: Props) {
+  const BRAND = useTheme();
   const confDelta = currentConfidence - previousConfidence;
   const runwayDelta = currentRunway - previousRunway;
 
@@ -53,7 +54,7 @@ export function WeeklyProgressBanner({
     <View style={[styles.container, { backgroundColor: bgColor, borderColor }]}>
       <Text style={styles.emoji}>{emoji}</Text>
       <View style={styles.content}>
-        <Text style={styles.timeLabel}>{timeLabel}</Text>
+        <Text style={[styles.timeLabel, { color: BRAND.textSecondary }]}>{timeLabel}</Text>
         <View style={styles.deltaRow}>
           {confDelta !== 0 && (
             <View style={styles.chip}>
@@ -99,7 +100,6 @@ const styles = StyleSheet.create({
   emoji: { fontSize: 20 },
   content: { flex: 1 },
   timeLabel: {
-    color: BRAND.textSecondary,
     fontSize: 11,
     fontWeight: '600',
     marginBottom: 4,

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { AnimatedNumber } from './AnimatedNumber';
+import { useTheme } from '../lib/theme';
 
 interface ConfidenceRingProps {
   value: number;
@@ -15,14 +16,22 @@ function getColor(value: number): string {
   return '#f87171';                   // Soft warm red
 }
 
+function getGlowColor(value: number): string {
+  if (value >= 70) return 'rgba(52, 211, 153, 0.25)';  // Green glow
+  if (value >= 40) return 'rgba(251, 191, 36, 0.25)';  // Golden glow
+  return 'rgba(248, 113, 113, 0.25)';                   // Red glow
+}
+
 export function ConfidenceRing({
   value,
   context,
   size = 200,
   strokeWidth = 12,
 }: ConfidenceRingProps) {
+  const BRAND = useTheme();
   const clamped = Math.max(0, Math.min(100, value));
   const color = getColor(clamped);
+  const glowColor = getGlowColor(clamped);
   const halfSize = size / 2;
   const innerRadius = halfSize - strokeWidth;
 
@@ -38,12 +47,26 @@ export function ConfidenceRing({
 
   return (
     <View
-      style={[styles.wrapper, { width: size, height: size }]}
+      style={[styles.wrapper, {
+        width: size + 24,
+        height: size + 24,
+        shadowColor: color,
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.3,
+        shadowRadius: 20,
+      }]}
       accessible
       accessibilityRole="progressbar"
       accessibilityLabel={`Quit readiness ${clamped} percent. ${context}`}
       accessibilityValue={{ min: 0, max: 100, now: clamped }}
     >
+      {/* Subtle color-matched glow behind the ring */}
+      <View style={[styles.glowCircle, {
+        width: size + 20,
+        height: size + 20,
+        borderRadius: (size + 20) / 2,
+        backgroundColor: glowColor,
+      }]} />
       {/* Background track ring */}
       <View
         style={[
@@ -53,7 +76,9 @@ export function ConfidenceRing({
             height: size,
             borderRadius: halfSize,
             borderWidth: strokeWidth,
-            borderColor: '#E7E5E4',
+            borderColor: BRAND.isDark ? '#292524' : '#E7E5E4',
+            top: 12,
+            left: 12,
           },
         ]}
       />
@@ -65,7 +90,8 @@ export function ConfidenceRing({
           {
             width: halfSize,
             height: size,
-            left: halfSize,
+            left: halfSize + 12,
+            top: 12,
           },
         ]}
       >
@@ -93,7 +119,8 @@ export function ConfidenceRing({
           {
             width: halfSize,
             height: size,
-            left: 0,
+            left: 12,
+            top: 12,
           },
         ]}
       >
@@ -122,8 +149,8 @@ export function ConfidenceRing({
             width: innerRadius * 2,
             height: innerRadius * 2,
             borderRadius: innerRadius,
-            top: strokeWidth,
-            left: strokeWidth,
+            top: strokeWidth + 12,
+            left: strokeWidth + 12,
           },
         ]}
       >
@@ -132,8 +159,8 @@ export function ConfidenceRing({
           suffix="%"
           style={[styles.valueText, { color }]}
         />
-        <Text style={styles.label}>How Ready You Are</Text>
-        <Text style={styles.context} numberOfLines={2}>
+        <Text style={[styles.label, { color: BRAND.textSecondary }]}>How Ready You Are</Text>
+        <Text style={[styles.context, { color: BRAND.textMuted }]} numberOfLines={2}>
           {context}
         </Text>
       </View>
@@ -149,6 +176,9 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   ring: {
+    position: 'absolute',
+  },
+  glowCircle: {
     position: 'absolute',
   },
   halfMask: {
@@ -171,12 +201,10 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
   },
   label: {
-    color: '#A8A29E',
     fontSize: 13,
     marginTop: 2,
   },
   context: {
-    color: '#78716C',
     fontSize: 11,
     fontStyle: 'italic',
     marginTop: 4,

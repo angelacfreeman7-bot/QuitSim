@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
-import { BRAND } from '../lib/theme';
+import { useTheme } from '../lib/theme';
 import { runSimulation, DEFAULT_PARAMS } from '../lib/engine';
 import * as Haptics from 'expo-haptics';
 
@@ -23,6 +23,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
    Slide 1: HOOK — Big, bright, exciting
    ───────────────────────────────────────────── */
 function SlideHook() {
+  const BRAND = useTheme();
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const fadeIn1 = useRef(new Animated.Value(0)).current;
   const fadeIn2 = useRef(new Animated.Value(0)).current;
@@ -74,46 +75,46 @@ function SlideHook() {
       </Animated.Text>
 
       <Animated.View style={{ opacity: fadeIn1, transform: [{ translateY: slideUp1 }] }}>
-        <Text style={s.hookTitle}>
+        <Text style={[s.hookTitle, { color: BRAND.text }]}>
           When could you{'\n'}
-          <Text style={s.hookTitleAccent}>quit your job?</Text>
+          <Text style={[s.hookTitleAccent, { color: BRAND.sunset }]}>quit your job?</Text>
         </Text>
       </Animated.View>
 
       <Animated.View style={{ opacity: fadeIn2, transform: [{ translateY: slideUp2 }] }}>
-        <Text style={s.hookSub}>Find out in 60 seconds.</Text>
+        <Text style={[s.hookSub, { color: BRAND.sunset }]}>Find out in 60 seconds.</Text>
       </Animated.View>
 
       {/* Mini demo preview — shows what the app delivers */}
-      <Animated.View style={[s.demoCard, { opacity: fadeIn3, transform: [{ translateY: slideUp3 }] }]}>
+      <Animated.View style={[s.demoCard, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }, { opacity: fadeIn3, transform: [{ translateY: slideUp3 }] }]}>
         <View style={s.demoRow}>
           <View style={s.demoScoreBox}>
             <Animated.Text style={[s.demoScoreText, { color: BRAND.success }]}>
               {demoScore.interpolate({ inputRange: [0, 73], outputRange: ['0', '73'] })}
             </Animated.Text>
-            <Text style={s.demoScoreUnit}>%</Text>
+            <Text style={[s.demoScoreUnit, { color: BRAND.textMuted }]}>%</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={s.demoLabel}>Quit Readiness</Text>
-            <View style={s.demoBarTrack}>
+            <Text style={[s.demoLabel, { color: BRAND.textSecondary }]}>Quit Readiness</Text>
+            <View style={[s.demoBarTrack, { backgroundColor: BRAND.isDark ? '#292524' : '#E7E5E4' }]}>
               <Animated.View style={[s.demoBarFill, { width: demoBarWidth.interpolate({ inputRange: [0, 1], outputRange: ['0%', '73%'] }), backgroundColor: BRAND.success }]} />
             </View>
-            <Text style={s.demoHint}>Freedom Date: March 2027</Text>
+            <Text style={[s.demoHint, { color: BRAND.textMuted }]}>Freedom Date: March 2027</Text>
           </View>
         </View>
       </Animated.View>
 
       <Animated.View style={[s.tagRow, { opacity: fadeIn4, transform: [{ translateY: slideUp4 }] }]}>
-        <View style={s.tagGreen}>
+        <View style={[s.tagGreen, BRAND.isDark && { backgroundColor: '#064E3B', borderColor: '#065F46' }]}>
           <Text style={s.tagGreenText}>100% free</Text>
         </View>
-        <View style={s.tagBlue}>
+        <View style={[s.tagBlue, BRAND.isDark && { backgroundColor: '#1E3A5F', borderColor: '#1E40AF' }]}>
           <Text style={s.tagBlueText}>100% private</Text>
         </View>
       </Animated.View>
 
       <Animated.View style={{ opacity: fadeIn4, transform: [{ translateY: slideUp4 }] }}>
-        <Text style={s.hookDetail}>
+        <Text style={[s.hookDetail, { color: BRAND.textMuted }]}>
           No sign-up. No servers.{'\n'}Your numbers never leave this phone.
         </Text>
       </Animated.View>
@@ -138,16 +139,18 @@ function formatDollar(n: number): string {
   return `$${n.toLocaleString('en-US')}`;
 }
 
-function getSliderReaction(data: NumbersData): { emoji: string; text: string; color: string } {
-  const ratio = (data.savings + (data.salary / 12) * 3) / Math.max(data.expenses, 1);
-  if (ratio > 20) return { emoji: '🤑', text: "You're sitting pretty!", color: BRAND.success };
-  if (ratio > 10) return { emoji: '😎', text: 'Looking good!', color: BRAND.success };
-  if (ratio > 5) return { emoji: '💪', text: 'Solid foundation!', color: BRAND.warmTeal };
-  if (ratio > 3) return { emoji: '🌱', text: "Great start — let's see!", color: BRAND.sunset };
-  return { emoji: '🚀', text: 'Everyone starts somewhere!', color: BRAND.coral };
-}
-
 function SlideNumbers({ data, onChange }: { data: NumbersData; onChange: (d: NumbersData) => void }) {
+  const BRAND = useTheme();
+
+  function getSliderReaction(d: NumbersData): { emoji: string; text: string; color: string } {
+    const ratio = (d.savings + (d.salary / 12) * 3) / Math.max(d.expenses, 1);
+    if (ratio > 20) return { emoji: '🤑', text: "You're sitting pretty!", color: BRAND.success };
+    if (ratio > 10) return { emoji: '😎', text: 'Looking good!', color: BRAND.success };
+    if (ratio > 5) return { emoji: '💪', text: 'Solid foundation!', color: BRAND.warmTeal };
+    if (ratio > 3) return { emoji: '🌱', text: "Great start — let's see!", color: BRAND.sunset };
+    return { emoji: '🚀', text: 'Everyone starts somewhere!', color: BRAND.coral };
+  }
+
   const reaction = getSliderReaction(data);
 
   return (
@@ -157,13 +160,13 @@ function SlideNumbers({ data, onChange }: { data: NumbersData; onChange: (d: Num
         <Text style={[s.reactionText, { color: reaction.color }]}>{reaction.text}</Text>
       </View>
 
-      <Text style={s.sectionTitle}>Drag the sliders</Text>
-      <Text style={s.sectionSub}>Rough numbers are perfect. You can fine-tune later.</Text>
+      <Text style={[s.sectionTitle, { color: BRAND.text }]}>Drag the sliders</Text>
+      <Text style={[s.sectionSub, { color: BRAND.textSecondary }]}>Rough numbers are perfect. You can fine-tune later.</Text>
 
-      <View style={s.sliderCard}>
+      <View style={[s.sliderCard, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }]}>
         <View style={s.sliderGroup}>
           <View style={s.sliderHeader}>
-            <Text style={s.sliderLabel}>💰 Yearly pay</Text>
+            <Text style={[s.sliderLabel, { color: BRAND.text }]}>💰 Yearly pay</Text>
             <Text style={[s.sliderValue, { color: BRAND.primary }]}>{formatK(data.salary)}</Text>
           </View>
           <Slider
@@ -174,20 +177,20 @@ function SlideNumbers({ data, onChange }: { data: NumbersData; onChange: (d: Num
             value={data.salary}
             onValueChange={(v) => onChange({ ...data, salary: v })}
             minimumTrackTintColor={BRAND.primary}
-            maximumTrackTintColor="#E7E5E4"
+            maximumTrackTintColor={BRAND.isDark ? '#292524' : '#E7E5E4'}
             thumbTintColor={BRAND.primary}
           />
           <View style={s.sliderRange}>
-            <Text style={s.rangeText}>$20k</Text>
-            <Text style={s.rangeText}>$300k</Text>
+            <Text style={[s.rangeText, { color: BRAND.textMuted }]}>$20k</Text>
+            <Text style={[s.rangeText, { color: BRAND.textMuted }]}>$300k</Text>
           </View>
         </View>
 
-        <View style={s.sliderDivider} />
+        <View style={[s.sliderDivider, { backgroundColor: BRAND.isDark ? '#292524' : '#F5F0EB' }]} />
 
         <View style={s.sliderGroup}>
           <View style={s.sliderHeader}>
-            <Text style={s.sliderLabel}>🏦 Total savings</Text>
+            <Text style={[s.sliderLabel, { color: BRAND.text }]}>🏦 Total savings</Text>
             <Text style={[s.sliderValue, { color: BRAND.success }]}>{formatK(data.savings)}</Text>
           </View>
           <Slider
@@ -198,20 +201,20 @@ function SlideNumbers({ data, onChange }: { data: NumbersData; onChange: (d: Num
             value={data.savings}
             onValueChange={(v) => onChange({ ...data, savings: v })}
             minimumTrackTintColor={BRAND.success}
-            maximumTrackTintColor="#E7E5E4"
+            maximumTrackTintColor={BRAND.isDark ? '#292524' : '#E7E5E4'}
             thumbTintColor={BRAND.success}
           />
           <View style={s.sliderRange}>
-            <Text style={s.rangeText}>$0</Text>
-            <Text style={s.rangeText}>$500k</Text>
+            <Text style={[s.rangeText, { color: BRAND.textMuted }]}>$0</Text>
+            <Text style={[s.rangeText, { color: BRAND.textMuted }]}>$500k</Text>
           </View>
         </View>
 
-        <View style={s.sliderDivider} />
+        <View style={[s.sliderDivider, { backgroundColor: BRAND.isDark ? '#292524' : '#F5F0EB' }]} />
 
         <View style={s.sliderGroup}>
           <View style={s.sliderHeader}>
-            <Text style={s.sliderLabel}>🔥 Monthly spend</Text>
+            <Text style={[s.sliderLabel, { color: BRAND.text }]}>🔥 Monthly spend</Text>
             <Text style={[s.sliderValue, { color: BRAND.sunset }]}>{formatDollar(data.expenses)}</Text>
           </View>
           <Slider
@@ -222,12 +225,12 @@ function SlideNumbers({ data, onChange }: { data: NumbersData; onChange: (d: Num
             value={data.expenses}
             onValueChange={(v) => onChange({ ...data, expenses: v })}
             minimumTrackTintColor={BRAND.sunset}
-            maximumTrackTintColor="#E7E5E4"
+            maximumTrackTintColor={BRAND.isDark ? '#292524' : '#E7E5E4'}
             thumbTintColor={BRAND.sunset}
           />
           <View style={s.sliderRange}>
-            <Text style={s.rangeText}>$1k</Text>
-            <Text style={s.rangeText}>$15k</Text>
+            <Text style={[s.rangeText, { color: BRAND.textMuted }]}>$1k</Text>
+            <Text style={[s.rangeText, { color: BRAND.textMuted }]}>$15k</Text>
           </View>
         </View>
       </View>
@@ -246,6 +249,7 @@ interface PreviewResult {
 }
 
 function SlideResults({ result, loading }: { result: PreviewResult | null; loading: boolean }) {
+  const BRAND = useTheme();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.85)).current;
   const detailsFade = useRef(new Animated.Value(0)).current;
@@ -271,8 +275,8 @@ function SlideResults({ result, loading }: { result: PreviewResult | null; loadi
       <View style={s.loadingCenter}>
         <Text style={{ fontSize: 56 }}>🔮</Text>
         <ActivityIndicator size="large" color={BRAND.sunset} style={{ marginTop: 16 }} />
-        <Text style={s.loadingText}>Stress-testing your finances...</Text>
-        <Text style={s.loadingSubText}>Simulating 500 different futures</Text>
+        <Text style={[s.loadingText, { color: BRAND.textSecondary }]}>Stress-testing your finances...</Text>
+        <Text style={[s.loadingSubText, { color: BRAND.textMuted }]}>Simulating 500 different futures</Text>
       </View>
     );
   }
@@ -296,16 +300,16 @@ function SlideResults({ result, loading }: { result: PreviewResult | null; loadi
 
   return (
     <View style={s.center}>
-      <Animated.View style={[s.scoreCard, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
-        <Text style={s.resultsLabel}>YOUR QUIT READINESS</Text>
+      <Animated.View style={[s.scoreCard, { backgroundColor: BRAND.card }, { opacity: fadeAnim, transform: [{ scale: scaleAnim }], borderColor: color + '40', shadowColor: color }]}>
+        <Text style={[s.resultsLabel, { color: BRAND.textMuted }]}>YOUR QUIT READINESS</Text>
         <Text style={[s.bigScore, { color }]}>{result.confidence}%</Text>
         <Text style={[s.scoreMessage, { color }]}>{message}</Text>
-        <Text style={s.scoreSub}>{subMessage}</Text>
+        <Text style={[s.scoreSub, { color: BRAND.textSecondary }]}>{subMessage}</Text>
       </Animated.View>
 
       <Animated.View style={[{ width: '100%' }, { opacity: detailsFade, transform: [{ translateY: detailsSlide }] }]}>
         {freedomFormatted && (
-          <View style={s.freedomCard}>
+          <View style={[s.freedomCard, BRAND.isDark && { backgroundColor: '#064E3B', borderColor: '#065F46' }]}>
             <Text style={{ fontSize: 28 }}>🌅</Text>
             <View style={{ flex: 1 }}>
               <Text style={s.freedomLabel}>Your Freedom Date</Text>
@@ -316,13 +320,13 @@ function SlideResults({ result, loading }: { result: PreviewResult | null; loadi
 
         <View style={s.miniStatsRow}>
           <View style={s.miniStat}>
-            <Text style={s.miniStatValue}>{result.runwayMonths}</Text>
-            <Text style={s.miniStatLabel}>months covered</Text>
+            <Text style={[s.miniStatValue, { color: BRAND.text }]}>{result.runwayMonths}</Text>
+            <Text style={[s.miniStatLabel, { color: BRAND.textMuted }]}>months covered</Text>
           </View>
-          <View style={s.miniStatDivider} />
+          <View style={[s.miniStatDivider, { backgroundColor: BRAND.isDark ? '#292524' : '#E7E5E4' }]} />
           <View style={s.miniStat}>
-            <Text style={s.miniStatValue}>{result.stressTest}%</Text>
-            <Text style={s.miniStatLabel}>stress test pass</Text>
+            <Text style={[s.miniStatValue, { color: BRAND.text }]}>{result.stressTest}%</Text>
+            <Text style={[s.miniStatLabel, { color: BRAND.textMuted }]}>stress test pass</Text>
           </View>
         </View>
       </Animated.View>
@@ -337,14 +341,15 @@ function SlideLetsGo({ disclaimerAccepted, setDisclaimerAccepted }: {
   disclaimerAccepted: boolean;
   setDisclaimerAccepted: (v: boolean) => void;
 }) {
+  const BRAND = useTheme();
   return (
     <View style={s.center}>
       <Text style={{ fontSize: 56, textAlign: 'center', marginBottom: 16 }}>🚀</Text>
-      <Text style={s.letsGoTitle}>
+      <Text style={[s.letsGoTitle, { color: BRAND.text }]}>
         Ready to build{'\n'}
         <Text style={{ color: BRAND.primary }}>your plan?</Text>
       </Text>
-      <Text style={s.letsGoSub}>
+      <Text style={[s.letsGoSub, { color: BRAND.textSecondary }]}>
         We'll save your numbers and unlock the full{'\n'}
         simulator, daily challenges, and what-if explorer.
       </Text>
@@ -355,9 +360,9 @@ function SlideLetsGo({ disclaimerAccepted, setDisclaimerAccepted }: {
           { icon: 'calculator' as const, text: 'All math runs locally', color: BRAND.success },
           { icon: 'trash' as const, text: 'Delete app = data gone', color: BRAND.sunset },
         ].map((item, i) => (
-          <View key={i} style={s.trustPill}>
+          <View key={i} style={[s.trustPill, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }]}>
             <Ionicons name={item.icon} size={14} color={item.color} />
-            <Text style={s.trustPillText}>{item.text}</Text>
+            <Text style={[s.trustPillText, { color: BRAND.textSecondary }]}>{item.text}</Text>
           </View>
         ))}
       </View>
@@ -371,10 +376,10 @@ function SlideLetsGo({ disclaimerAccepted, setDisclaimerAccepted }: {
         accessibilityRole="checkbox"
         accessibilityState={{ checked: disclaimerAccepted }}
       >
-        <View style={[s.checkbox, disclaimerAccepted && s.checkboxChecked]}>
+        <View style={[s.checkbox, { borderColor: BRAND.isDark ? '#57534E' : '#D6D3D1' }, disclaimerAccepted && { backgroundColor: BRAND.primary, borderColor: BRAND.primary }]}>
           {disclaimerAccepted && <Ionicons name="checkmark" size={14} color="#fff" />}
         </View>
-        <Text style={s.disclaimerText}>
+        <Text style={[s.disclaimerText, { color: BRAND.textSecondary }]}>
           I understand this is an educational tool, not financial advice.
         </Text>
       </Pressable>
@@ -392,6 +397,7 @@ interface WelcomeScreenProps {
 }
 
 export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
+  const BRAND = useTheme();
   const [slide, setSlide] = useState(0);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
   const [numbers, setNumbers] = useState<NumbersData>({ salary: 75000, savings: 30000, expenses: 3500 });
@@ -460,15 +466,22 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
   const buttonLabels = ["Let's Find Out", 'Show My Results', 'Keep Going', 'Start Planning'];
 
   // Background gradient per slide
-  const gradients: Record<number, string[]> = {
-    0: ['#FFF0E5', '#FFF8F0', BRAND.bg],  // Warm peach
-    1: [BRAND.bg, BRAND.bg, BRAND.bg],     // Clean
-    2: ['#ECFDF5', '#F0FDFA', BRAND.bg],   // Fresh green
-    3: ['#EFF6FF', '#F0F9FF', BRAND.bg],   // Calm blue
-  };
+  const gradients: Record<number, string[]> = BRAND.isDark
+    ? {
+        0: [BRAND.bg, BRAND.bg, BRAND.bg],
+        1: [BRAND.bg, BRAND.bg, BRAND.bg],
+        2: [BRAND.bg, BRAND.bg, BRAND.bg],
+        3: [BRAND.bg, BRAND.bg, BRAND.bg],
+      }
+    : {
+        0: ['#FFF0E5', '#FFF8F0', BRAND.bg],  // Warm peach
+        1: [BRAND.bg, BRAND.bg, BRAND.bg],     // Clean
+        2: ['#ECFDF5', '#F0FDFA', BRAND.bg],   // Fresh green
+        3: ['#EFF6FF', '#F0F9FF', BRAND.bg],   // Calm blue
+      };
 
   return (
-    <SafeAreaView style={s.container}>
+    <SafeAreaView style={[s.container, { backgroundColor: BRAND.bg }]}>
       <LinearGradient
         colors={gradients[slide] as any}
         style={StyleSheet.absoluteFillObject}
@@ -479,7 +492,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
       {/* Progress bar */}
       <View style={s.progressBar}>
         {Array.from({ length: TOTAL_SLIDES }).map((_, i) => (
-          <View key={i} style={[s.progressSegment, i <= slide && s.progressFilled]} />
+          <View key={i} style={[s.progressSegment, { backgroundColor: BRAND.isDark ? '#292524' : '#E7E5E4' }, i <= slide && { backgroundColor: BRAND.sunset }]} />
         ))}
       </View>
 
@@ -510,106 +523,102 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
           </Text>
           {!needsDisclaimer && <Ionicons name="arrow-forward" size={18} color="#fff" style={{ marginLeft: 8 }} />}
         </Pressable>
-        {slide === 0 && <Text style={s.footerNote}>Takes 60 seconds. No account needed.</Text>}
+        {slide === 0 && <Text style={[s.footerNote, { color: BRAND.textMuted }]}>Takes 60 seconds. No account needed.</Text>}
       </View>
     </SafeAreaView>
   );
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: BRAND.bg },
+  container: { flex: 1 },
   contentArea: { flex: 1, justifyContent: 'center', paddingHorizontal: 24 },
   slideWrap: { width: '100%' },
   center: { alignItems: 'center', width: '100%' },
 
   // Progress
   progressBar: { flexDirection: 'row', paddingHorizontal: 24, paddingTop: 12, gap: 6 },
-  progressSegment: { flex: 1, height: 4, borderRadius: 2, backgroundColor: '#E7E5E4' },
-  progressFilled: { backgroundColor: BRAND.sunset },
+  progressSegment: { flex: 1, height: 4, borderRadius: 2 },
 
   // Hook
   hookContainer: { alignItems: 'center' },
   bigEmoji: { fontSize: 72, textAlign: 'center', marginBottom: 24 },
-  hookTitle: { color: BRAND.text, fontSize: 32, fontWeight: '800', textAlign: 'center', lineHeight: 40, marginBottom: 12 },
-  hookTitleAccent: { color: BRAND.sunset },
-  hookSub: { color: BRAND.sunset, fontSize: 17, fontWeight: '600', textAlign: 'center', marginBottom: 24 },
+  hookTitle: { fontSize: 32, fontWeight: '800', textAlign: 'center', lineHeight: 40, marginBottom: 12 },
+  hookTitleAccent: {},
+  hookSub: { fontSize: 17, fontWeight: '600', textAlign: 'center', marginBottom: 24 },
   tagRow: { flexDirection: 'row', gap: 10, marginBottom: 20 },
   tagGreen: { backgroundColor: '#ECFDF5', borderWidth: 1, borderColor: '#A7F3D0', borderRadius: 24, paddingHorizontal: 16, paddingVertical: 8 },
   tagGreenText: { color: '#059669', fontSize: 14, fontWeight: '600' },
   tagBlue: { backgroundColor: '#EFF6FF', borderWidth: 1, borderColor: '#BFDBFE', borderRadius: 24, paddingHorizontal: 16, paddingVertical: 8 },
   tagBlueText: { color: '#2563EB', fontSize: 14, fontWeight: '600' },
-  hookDetail: { color: BRAND.textMuted, fontSize: 14, textAlign: 'center', lineHeight: 22 },
+  hookDetail: { fontSize: 14, textAlign: 'center', lineHeight: 22 },
 
   // Demo preview card
   demoCard: {
     width: '100%',
-    backgroundColor: BRAND.card,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     padding: 16,
     marginBottom: 20,
   },
   demoRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   demoScoreBox: { flexDirection: 'row', alignItems: 'baseline' },
   demoScoreText: { fontSize: 36, fontWeight: '800', fontVariant: ['tabular-nums'] },
-  demoScoreUnit: { fontSize: 18, fontWeight: '700', color: BRAND.textMuted, marginLeft: 1 },
-  demoLabel: { color: BRAND.textSecondary, fontSize: 12, fontWeight: '600', marginBottom: 6 },
-  demoBarTrack: { height: 8, borderRadius: 4, backgroundColor: '#E7E5E4', overflow: 'hidden' },
+  demoScoreUnit: { fontSize: 18, fontWeight: '700', marginLeft: 1 },
+  demoLabel: { fontSize: 12, fontWeight: '600', marginBottom: 6 },
+  demoBarTrack: { height: 8, borderRadius: 4, overflow: 'hidden' },
   demoBarFill: { height: '100%', borderRadius: 4 },
-  demoHint: { color: BRAND.textMuted, fontSize: 11, marginTop: 6 },
+  demoHint: { fontSize: 11, marginTop: 6 },
 
   // Numbers
   reactionBubble: { flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderRadius: 24, paddingHorizontal: 16, paddingVertical: 8, marginBottom: 16 },
   reactionEmoji: { fontSize: 20 },
   reactionText: { fontSize: 14, fontWeight: '600' },
-  sectionTitle: { color: BRAND.text, fontSize: 22, fontWeight: '700', textAlign: 'center', marginBottom: 6 },
-  sectionSub: { color: BRAND.textSecondary, fontSize: 14, textAlign: 'center', marginBottom: 20 },
-  sliderCard: { width: '100%', backgroundColor: BRAND.card, borderRadius: 20, borderWidth: 1, borderColor: BRAND.cardBorder, padding: 20 },
+  sectionTitle: { fontSize: 22, fontWeight: '700', textAlign: 'center', marginBottom: 6 },
+  sectionSub: { fontSize: 14, textAlign: 'center', marginBottom: 20 },
+  sliderCard: { width: '100%', borderRadius: 20, borderWidth: 1, padding: 20 },
   sliderGroup: {},
-  sliderDivider: { height: 1, backgroundColor: '#F5F0EB', marginVertical: 16 },
+  sliderDivider: { height: 1, marginVertical: 16 },
   sliderHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
-  sliderLabel: { color: BRAND.text, fontSize: 15, fontWeight: '500' },
+  sliderLabel: { fontSize: 15, fontWeight: '500' },
   sliderValue: { fontSize: 20, fontWeight: '800', fontVariant: ['tabular-nums'] },
   slider: { width: '100%', height: 40 },
   sliderRange: { flexDirection: 'row', justifyContent: 'space-between' },
-  rangeText: { color: BRAND.textMuted, fontSize: 11 },
+  rangeText: { fontSize: 11 },
 
   // Results
   loadingCenter: { alignItems: 'center', justifyContent: 'center' },
-  loadingText: { color: BRAND.textSecondary, fontSize: 16, textAlign: 'center', marginTop: 12 },
-  loadingSubText: { color: BRAND.textMuted, fontSize: 13, textAlign: 'center', marginTop: 4 },
-  scoreCard: { width: '100%', backgroundColor: BRAND.card, borderRadius: 24, padding: 28, alignItems: 'center', marginBottom: 20, borderWidth: 1, borderColor: BRAND.cardBorder },
-  resultsLabel: { color: BRAND.textMuted, fontSize: 12, fontWeight: '700', letterSpacing: 2, marginBottom: 8 },
+  loadingText: { fontSize: 16, textAlign: 'center', marginTop: 12 },
+  loadingSubText: { fontSize: 13, textAlign: 'center', marginTop: 4 },
+  scoreCard: { width: '100%', borderRadius: 24, padding: 28, alignItems: 'center', marginBottom: 20, borderWidth: 1.5, borderColor: 'rgba(16, 185, 129, 0.25)', shadowColor: '#10B981', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.12, shadowRadius: 20, elevation: 6 },
+  resultsLabel: { fontSize: 12, fontWeight: '700', letterSpacing: 2, marginBottom: 8 },
   bigScore: { fontSize: 80, fontWeight: '800', fontVariant: ['tabular-nums'], lineHeight: 88 },
   scoreMessage: { fontSize: 18, fontWeight: '700', marginBottom: 8 },
-  scoreSub: { color: BRAND.textSecondary, fontSize: 14, textAlign: 'center', lineHeight: 21 },
+  scoreSub: { fontSize: 14, textAlign: 'center', lineHeight: 21 },
   freedomCard: { flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: '#ECFDF5', borderWidth: 1, borderColor: '#A7F3D0', borderRadius: 16, padding: 16, marginBottom: 16, width: '100%' },
   freedomLabel: { color: '#059669', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 2 },
   freedomDate: { color: '#059669', fontSize: 22, fontWeight: '800' },
   miniStatsRow: { flexDirection: 'row', alignItems: 'center' },
   miniStat: { alignItems: 'center', flex: 1 },
-  miniStatValue: { color: BRAND.text, fontSize: 26, fontWeight: '700', fontVariant: ['tabular-nums'] },
-  miniStatLabel: { color: BRAND.textMuted, fontSize: 12, marginTop: 2 },
-  miniStatDivider: { width: 1, height: 32, backgroundColor: '#E7E5E4' },
+  miniStatValue: { fontSize: 26, fontWeight: '700', fontVariant: ['tabular-nums'] },
+  miniStatLabel: { fontSize: 12, marginTop: 2 },
+  miniStatDivider: { width: 1, height: 32 },
 
   // Let's Go
-  letsGoTitle: { color: BRAND.text, fontSize: 30, fontWeight: '800', textAlign: 'center', lineHeight: 38, marginBottom: 12 },
-  letsGoSub: { color: BRAND.textSecondary, fontSize: 15, textAlign: 'center', lineHeight: 23, marginBottom: 24 },
+  letsGoTitle: { fontSize: 30, fontWeight: '800', textAlign: 'center', lineHeight: 38, marginBottom: 12 },
+  letsGoSub: { fontSize: 15, textAlign: 'center', lineHeight: 23, marginBottom: 24 },
   trustRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginBottom: 24 },
-  trustPill: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: BRAND.card, borderRadius: 20, borderWidth: 1, borderColor: BRAND.cardBorder, paddingHorizontal: 14, paddingVertical: 8 },
-  trustPillText: { color: BRAND.textSecondary, fontSize: 13, fontWeight: '500' },
+  trustPill: { flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: 20, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 8 },
+  trustPillText: { fontSize: 13, fontWeight: '500' },
   disclaimerRow: { flexDirection: 'row', alignItems: 'flex-start', paddingHorizontal: 4, gap: 10, width: '100%' },
-  checkbox: { width: 24, height: 24, borderRadius: 8, borderWidth: 2, borderColor: '#D6D3D1', justifyContent: 'center', alignItems: 'center', marginTop: 1 },
-  checkboxChecked: { backgroundColor: BRAND.primary, borderColor: BRAND.primary },
-  disclaimerText: { flex: 1, color: BRAND.textSecondary, fontSize: 13, lineHeight: 20 },
+  checkbox: { width: 24, height: 24, borderRadius: 8, borderWidth: 2, justifyContent: 'center', alignItems: 'center', marginTop: 1 },
+  disclaimerText: { flex: 1, fontSize: 13, lineHeight: 20 },
 
   // Button
   bottomSection: { paddingHorizontal: 24, paddingBottom: 36 },
-  actionButton: { backgroundColor: BRAND.primary, paddingVertical: 17, borderRadius: 16, alignItems: 'center', justifyContent: 'center', flexDirection: 'row' },
-  actionButtonWarm: { backgroundColor: BRAND.sunset },
-  actionButtonGreen: { backgroundColor: BRAND.success },
-  actionButtonDisabled: { backgroundColor: '#E7E5E4' },
+  actionButton: { backgroundColor: '#0EA5E9', paddingVertical: 17, borderRadius: 16, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', shadowColor: '#0EA5E9', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 12, elevation: 6 },
+  actionButtonWarm: { backgroundColor: '#F97316', shadowColor: '#F97316' },
+  actionButtonGreen: { backgroundColor: '#10B981', shadowColor: '#10B981' },
+  actionButtonDisabled: { backgroundColor: '#E7E5E4', shadowOpacity: 0 },
   actionButtonText: { color: '#fff', fontSize: 17, fontWeight: '700' },
-  footerNote: { color: BRAND.textMuted, fontSize: 12, textAlign: 'center', marginTop: 12 },
+  footerNote: { fontSize: 12, textAlign: 'center', marginTop: 12 },
 });

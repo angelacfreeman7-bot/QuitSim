@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SimParams, SimResult, UserProfile, SavedPlan, Streak } from '../types';
+import { ThemePreference } from '../lib/theme';
 import { runSimulation, DEFAULT_PARAMS } from '../lib/engine';
 import { getMonteCarloRuns } from '../lib/premium';
 import { FunPreset, FUN_MODE_UNLOCK_COUNT, getRandomSurpriseExpense } from '../lib/funPresets';
@@ -74,6 +75,9 @@ interface SimState {
     recordedAt: string;
   } | null;
   saveWeeklySnapshot: () => void;
+  // Theme
+  themePreference: ThemePreference;
+  setThemePreference: (pref: ThemePreference) => void;
   // Hydration
   _hasHydrated: boolean;
 }
@@ -379,6 +383,10 @@ export const useSimStore = create<SimState>()(
   lastMilestone: 0,
   pendingMilestone: null,
   clearMilestone: () => set({ pendingMilestone: null }),
+
+  // Theme
+  themePreference: 'system' as ThemePreference,
+  setThemePreference: (pref: ThemePreference) => set({ themePreference: pref }),
 }),
     {
       name: 'quitsim-store',
@@ -399,6 +407,7 @@ export const useSimStore = create<SimState>()(
         lastMilestone: state.lastMilestone,
         notificationPromptShown: state.notificationPromptShown,
         weeklySnapshot: state.weeklySnapshot,
+        themePreference: state.themePreference,
       }),
       migrate: (persisted: any, version: number) => {
         // Migration logic: runs when stored version < current STORE_VERSION

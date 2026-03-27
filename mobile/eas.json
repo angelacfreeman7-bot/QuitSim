@@ -25,7 +25,7 @@
       "ios": {
         "appleId": "angfreeapp@gmail.com",
         "ascAppId": "6761015566",
-        "appleTeamId": "YOUR_TEAM_ID"
+        "appleTeamId": "8ZK9X6VF52"
       },
       "android": {
         "serviceAccountKeyPath": "./google-service-account.json",

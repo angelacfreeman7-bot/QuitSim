@@ -14,7 +14,7 @@ import {
   getUpcomingChallenges,
   CHALLENGES,
 } from '../lib/challenges';
-import { BRAND } from '../lib/theme';
+import { useTheme } from '../lib/theme';
 import * as Haptics from 'expo-haptics';
 
 const categoryColors: Record<string, string> = {
@@ -32,6 +32,7 @@ const categoryEmoji: Record<string, string> = {
 };
 
 export function PracticeScreen() {
+  const BRAND = useTheme();
   const { streak, completeChallenge, result, savePlan, lockPlan, plans } =
     useSimStore();
   const todayChallenge = getTodayChallenge();
@@ -62,24 +63,24 @@ export function PracticeScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: BRAND.bg }]}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        <Text style={styles.title}>Daily Actions</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.title, { color: BRAND.text }]}>Daily Actions</Text>
+        <Text style={[styles.subtitle, { color: BRAND.textSecondary }]}>
           Small things you can do each day to get closer to quitting. Complete them to earn XP and keep your streak going!
         </Text>
 
         {/* Streak + XP */}
         <View style={styles.statsRow}>
-          <View style={styles.statCard}>
+          <View style={[styles.statCard, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }]}>
             <Text style={styles.statEmoji}>🔥</Text>
-            <Text style={styles.statBig}>{streak.current}</Text>
-            <Text style={styles.statLabel}>Day streak</Text>
+            <Text style={[styles.statBig, { color: BRAND.text }]}>{streak.current}</Text>
+            <Text style={[styles.statLabel, { color: BRAND.textMuted }]}>Day streak</Text>
           </View>
-          <View style={styles.statCard}>
+          <View style={[styles.statCard, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }]}>
             <Text style={styles.statEmoji}>🏆</Text>
-            <Text style={styles.statBig}>{totalXP}</Text>
-            <Text style={styles.statLabel}>Total XP</Text>
+            <Text style={[styles.statBig, { color: BRAND.text }]}>{totalXP}</Text>
+            <Text style={[styles.statLabel, { color: BRAND.textMuted }]}>Total XP</Text>
           </View>
         </View>
 
@@ -87,12 +88,12 @@ export function PracticeScreen() {
         <View
           style={[
             styles.todayCard,
-            isCompleted ? styles.todayCompleted : styles.todayActive,
+            isCompleted ? styles.todayCompleted : { backgroundColor: BRAND.primaryLight, borderColor: BRAND.primaryBorder },
           ]}
         >
           <View style={styles.todayHeader}>
-            <View style={styles.todayBadge}>
-              <Text style={styles.todayBadgeText}>Today's Challenge</Text>
+            <View style={[styles.todayBadge, { borderColor: BRAND.cardBorder }]}>
+              <Text style={[styles.todayBadgeText, { color: BRAND.textSecondary }]}>Today's Challenge</Text>
             </View>
             <View style={styles.xpBadge}>
               <Text style={styles.xpBadgeText}>+{todayChallenge.xp} XP</Text>
@@ -104,8 +105,8 @@ export function PracticeScreen() {
               {categoryEmoji[todayChallenge.category]}
             </Text>
             <View style={{ flex: 1 }}>
-              <Text style={styles.challengeTitle}>{todayChallenge.title}</Text>
-              <Text style={styles.challengeDesc}>
+              <Text style={[styles.challengeTitle, { color: BRAND.text }]}>{todayChallenge.title}</Text>
+              <Text style={[styles.challengeDesc, { color: BRAND.textSecondary }]}>
                 {todayChallenge.description}
               </Text>
             </View>
@@ -114,7 +115,8 @@ export function PracticeScreen() {
           <Pressable
             style={[
               styles.completeButton,
-              isCompleted && styles.completeButtonDone,
+              { backgroundColor: BRAND.primary },
+              isCompleted && { backgroundColor: BRAND.cardBorder },
             ]}
             onPress={handleComplete}
             disabled={isCompleted}
@@ -125,7 +127,7 @@ export function PracticeScreen() {
             <Text
               style={[
                 styles.completeButtonText,
-                isCompleted && styles.completeButtonTextDone,
+                isCompleted && { color: BRAND.textMuted },
               ]}
             >
               {isCompleted ? '✅  Completed!' : '✅  Mark as Done'}
@@ -144,51 +146,51 @@ export function PracticeScreen() {
               onPress={handleLockPlan}
               disabled={plans.some((p) => p.locked)}
             >
-              <Text style={styles.lockButtonText}>
+              <Text style={[styles.lockButtonText, { color: BRAND.text }]}>
                 {plans.some((p) => p.locked)
                   ? '🔒  You\u2019re committed — plan saved'
                   : '🔒  Commit to this plan'}
               </Text>
             </Pressable>
             {!plans.some((p) => p.locked) && (
-              <Text style={styles.lockSubtitle}>This saves your current numbers as your official plan. Think of it like setting a goal — you can always make new ones later.</Text>
+              <Text style={[styles.lockSubtitle, { color: BRAND.textMuted }]}>This saves your current numbers as your official plan. Think of it like setting a goal — you can always make new ones later.</Text>
             )}
           </>
         )}
 
         {/* Coming Up */}
-        <Text style={styles.sectionTitle}>Coming Up</Text>
+        <Text style={[styles.sectionTitle, { color: BRAND.textSecondary }]}>Coming Up</Text>
         {upcoming.map((challenge) => (
-          <View key={challenge.id} style={styles.upcomingCard}>
+          <View key={challenge.id} style={[styles.upcomingCard, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }]}>
             <Text style={styles.upcomingEmoji}>
               {categoryEmoji[challenge.category]}
             </Text>
-            <Text style={styles.upcomingTitle}>{challenge.title}</Text>
-            <View style={styles.upcomingXP}>
-              <Text style={styles.upcomingXPText}>+{challenge.xp} XP</Text>
+            <Text style={[styles.upcomingTitle, { color: BRAND.text }]}>{challenge.title}</Text>
+            <View style={[styles.upcomingXP, { borderColor: BRAND.cardBorder }]}>
+              <Text style={[styles.upcomingXPText, { color: BRAND.textMuted }]}>+{challenge.xp} XP</Text>
             </View>
           </View>
         ))}
 
         {/* Weekly Progress */}
         <View
-          style={styles.progressCard}
+          style={[styles.progressCard, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }]}
           accessible
           accessibilityRole="progressbar"
           accessibilityLabel={`Weekly progress: ${Math.min(streak.current, 7)} of 7 days`}
           accessibilityValue={{ min: 0, max: 7, now: Math.min(streak.current, 7) }}
         >
           <View style={styles.progressHeader}>
-            <Text style={styles.progressLabel}>Weekly progress</Text>
-            <Text style={styles.progressCount}>
+            <Text style={[styles.progressLabel, { color: BRAND.text }]}>Weekly progress</Text>
+            <Text style={[styles.progressCount, { color: BRAND.text }]}>
               {Math.min(streak.current, 7)}/7
             </Text>
           </View>
-          <View style={styles.progressBar}>
+          <View style={[styles.progressBar, { backgroundColor: BRAND.cardBorder }]}>
             <View
               style={[
                 styles.progressFill,
-                { width: `${Math.min((streak.current / 7) * 100, 100)}%` },
+                { width: `${Math.min((streak.current / 7) * 100, 100)}%`, backgroundColor: BRAND.primary },
               ]}
             />
           </View>
@@ -199,37 +201,30 @@ export function PracticeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: BRAND.bg },
+  container: { flex: 1 },
   scroll: { padding: 24 },
-  title: { color: BRAND.text, fontSize: 20, fontWeight: '700', marginBottom: 4 },
-  subtitle: { color: BRAND.textSecondary, fontSize: 13, marginBottom: 20 },
+  title: { fontSize: 20, fontWeight: '700', marginBottom: 4 },
+  subtitle: { fontSize: 13, marginBottom: 20 },
 
   // Stats
   statsRow: { flexDirection: 'row', gap: 12, marginBottom: 20 },
   statCard: {
     flex: 1,
-    backgroundColor: BRAND.card,
     borderRadius: 14,
     padding: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
   },
   statEmoji: { fontSize: 20, marginBottom: 4 },
   statBig: {
-    color: BRAND.text,
     fontSize: 28,
     fontWeight: '800',
     fontVariant: ['tabular-nums'],
   },
-  statLabel: { color: BRAND.textMuted, fontSize: 11, marginTop: 2 },
+  statLabel: { fontSize: 11, marginTop: 2 },
 
   // Today's challenge
   todayCard: { borderRadius: 12, padding: 20, marginBottom: 16, borderWidth: 2 },
-  todayActive: {
-    backgroundColor: BRAND.primaryLight,
-    borderColor: BRAND.primaryBorder,
-  },
   todayCompleted: {
     backgroundColor: 'rgba(251, 191, 36, 0.06)',
     borderColor: 'rgba(251, 191, 36, 0.3)',
@@ -241,28 +236,24 @@ const styles = StyleSheet.create({
   },
   todayBadge: {
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 3,
   },
-  todayBadgeText: { color: BRAND.textSecondary, fontSize: 11 },
+  todayBadgeText: { fontSize: 11 },
   xpBadge: { backgroundColor: 'rgba(251, 191, 36, 0.1)', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 },
   xpBadgeText: { color: '#FBBF24', fontSize: 11, fontWeight: '600' },
   todayContent: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginBottom: 16 },
   categoryEmoji: { fontSize: 24 },
-  challengeTitle: { color: BRAND.text, fontSize: 17, fontWeight: '600', marginBottom: 4 },
-  challengeDesc: { color: BRAND.textSecondary, fontSize: 13, lineHeight: 18 },
+  challengeTitle: { fontSize: 17, fontWeight: '600', marginBottom: 4 },
+  challengeDesc: { fontSize: 13, lineHeight: 18 },
   completeButton: {
-    backgroundColor: BRAND.primary,
     borderRadius: 10,
     height: 48,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  completeButtonDone: { backgroundColor: BRAND.cardBorder },
   completeButtonText: { color: '#FFFFFF', fontSize: 15, fontWeight: '600' },
-  completeButtonTextDone: { color: BRAND.textMuted },
 
   // Lock plan
   lockButton: {
@@ -275,13 +266,12 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   lockButtonDisabled: { opacity: 0.5 },
-  lockButtonText: { color: BRAND.text, fontSize: 13, fontWeight: '500' },
-  lockSubtitle: { color: BRAND.textMuted, fontSize: 11, textAlign: 'center', marginTop: 6, marginBottom: 24 },
+  lockButtonText: { fontSize: 13, fontWeight: '500' },
+  lockSubtitle: { fontSize: 11, textAlign: 'center', marginTop: 6, marginBottom: 24 },
 
   // Coming up
-  sectionTitle: { color: BRAND.textSecondary, fontSize: 13, fontWeight: '500', marginBottom: 10 },
+  sectionTitle: { fontSize: 13, fontWeight: '500', marginBottom: 10 },
   upcomingCard: {
-    backgroundColor: BRAND.card,
     borderRadius: 10,
     flexDirection: 'row',
     alignItems: 'center',
@@ -289,36 +279,31 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     gap: 10,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
   },
   upcomingEmoji: { fontSize: 16 },
-  upcomingTitle: { color: BRAND.text, fontSize: 13, flex: 1 },
+  upcomingTitle: { fontSize: 13, flex: 1 },
   upcomingXP: {
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     borderRadius: 4,
     paddingHorizontal: 6,
     paddingVertical: 2,
   },
-  upcomingXPText: { color: BRAND.textMuted, fontSize: 10 },
+  upcomingXPText: { fontSize: 10 },
 
   // Progress
   progressCard: {
-    backgroundColor: BRAND.card,
     borderRadius: 12,
     padding: 16,
     marginTop: 16,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
   },
   progressHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 8,
   },
-  progressLabel: { color: BRAND.text, fontSize: 13 },
+  progressLabel: { fontSize: 13 },
   progressCount: {
-    color: BRAND.text,
     fontSize: 13,
     fontWeight: '700',
     fontVariant: ['tabular-nums'],
@@ -326,8 +311,7 @@ const styles = StyleSheet.create({
   progressBar: {
     height: 6,
     borderRadius: 3,
-    backgroundColor: BRAND.cardBorder,
     overflow: 'hidden',
   },
-  progressFill: { height: '100%', backgroundColor: BRAND.primary, borderRadius: 3 },
+  progressFill: { height: '100%', borderRadius: 3 },
 });

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, StyleSheet, Switch } from 'react-native';
-import { BRAND } from '../lib/theme';
+import { useTheme } from '../lib/theme';
 
 interface Assumption {
   id: string;
@@ -48,40 +48,41 @@ const ASSUMPTIONS: Assumption[] = [
 ];
 
 export function AssumptionsCard() {
+  const BRAND = useTheme();
   const [expanded, setExpanded] = useState(false);
   const [acknowledged, setAcknowledged] = useState<Record<string, boolean>>({});
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: BRAND.warningLight }]}>
       <Pressable style={styles.header} onPress={() => setExpanded(!expanded)}>
         <Text style={styles.headerIcon}>⚠️</Text>
         <View style={{ flex: 1 }}>
-          <Text style={styles.headerTitle}>What This Doesn&apos;t Include</Text>
-          <Text style={styles.headerSubtitle}>
+          <Text style={[styles.headerTitle, { color: BRAND.warning }]}>What This Doesn&apos;t Include</Text>
+          <Text style={[styles.headerSubtitle, { color: BRAND.textSecondary }]}>
             {ASSUMPTIONS.length} things to keep in mind
           </Text>
         </View>
-        <Text style={styles.chevron}>{expanded ? '▲' : '▼'}</Text>
+        <Text style={[styles.chevron, { color: BRAND.textSecondary }]}>{expanded ? '▲' : '▼'}</Text>
       </Pressable>
 
       {expanded && (
         <View style={styles.list}>
           {ASSUMPTIONS.map((a) => (
-            <View key={a.id} style={styles.item}>
+            <View key={a.id} style={[styles.item, { borderTopColor: BRAND.cardBorder }]}>
               <View style={styles.itemHeader}>
                 <Switch
                   value={acknowledged[a.id] ?? a.defaultOn}
                   onValueChange={(v) =>
                     setAcknowledged((prev) => ({ ...prev, [a.id]: v }))
                   }
-                  trackColor={{ false: '#E7E5E4', true: '#eab30840' }}
+                  trackColor={{ false: BRAND.isDark ? '#292524' : '#E7E5E4', true: '#eab30840' }}
                   thumbColor={
                     acknowledged[a.id] ?? a.defaultOn ? '#F59E0B' : '#78716C'
                   }
                 />
-                <Text style={styles.itemLabel}>{a.label}</Text>
+                <Text style={[styles.itemLabel, { color: BRAND.text }]}>{a.label}</Text>
               </View>
-              <Text style={styles.itemWarning}>{a.warning}</Text>
+              <Text style={[styles.itemWarning, { color: BRAND.textSecondary }]}>{a.warning}</Text>
             </View>
           ))}
 
@@ -98,7 +99,6 @@ export function AssumptionsCard() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: BRAND.warningLight,
     borderWidth: 1,
     borderColor: 'rgba(234, 179, 8, 0.2)',
     borderRadius: 12,
@@ -111,14 +111,13 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   headerIcon: { fontSize: 18 },
-  headerTitle: { color: BRAND.warning, fontSize: 14, fontWeight: '600' },
-  headerSubtitle: { color: BRAND.textSecondary, fontSize: 11, marginTop: 1 },
-  chevron: { color: BRAND.textSecondary, fontSize: 12 },
+  headerTitle: { fontSize: 14, fontWeight: '600' },
+  headerSubtitle: { fontSize: 11, marginTop: 1 },
+  chevron: { fontSize: 12 },
 
   list: { paddingHorizontal: 14, paddingBottom: 14 },
   item: {
     borderTopWidth: 1,
-    borderTopColor: BRAND.cardBorder,
     paddingVertical: 12,
   },
   itemHeader: {
@@ -127,8 +126,8 @@ const styles = StyleSheet.create({
     gap: 10,
     marginBottom: 6,
   },
-  itemLabel: { color: BRAND.text, fontSize: 13, fontWeight: '500', flex: 1 },
-  itemWarning: { color: BRAND.textSecondary, fontSize: 11, lineHeight: 16, marginLeft: 52 },
+  itemLabel: { fontSize: 13, fontWeight: '500', flex: 1 },
+  itemWarning: { fontSize: 11, lineHeight: 16, marginLeft: 52 },
 
   summaryBox: {
     backgroundColor: 'rgba(239, 68, 68, 0.08)',

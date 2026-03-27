@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSimStore } from '../stores/useSimStore';
-import { BRAND } from '../lib/theme';
+import { useTheme } from '../lib/theme';
 import * as Haptics from 'expo-haptics';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -77,6 +77,7 @@ function parseCurrency(text: string): number {
 }
 
 export function OnboardingScreen() {
+  const BRAND = useTheme();
   const setProfile = useSimStore((s) => s.setProfile);
   const setOnboarded = useSimStore((s) => s.setOnboarded);
   const simulate = useSimStore((s) => s.simulate);
@@ -174,9 +175,9 @@ export function OnboardingScreen() {
   const isLast = step === TOTAL_STEPS - 1;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: BRAND.bg }]}>
       <LinearGradient
-        colors={['#FFF7ED', '#FFFBF7', BRAND.bg]}
+        colors={BRAND.isDark ? [BRAND.bg, BRAND.bg, BRAND.bg] : ['#FFF7ED', '#FFFBF7', BRAND.bg]}
         style={StyleSheet.absoluteFillObject}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 0.4 }}
@@ -193,12 +194,12 @@ export function OnboardingScreen() {
           {/* Progress bar */}
           <View style={styles.progressRow} accessible accessibilityRole="progressbar" accessibilityLabel={`Step ${step + 1} of ${TOTAL_STEPS}`} accessibilityValue={{ min: 1, max: TOTAL_STEPS, now: step + 1 }}>
             {STEPS.map((_, i) => (
-              <View key={i} style={[styles.progressSegment, i <= step && styles.progressFilled]} />
+              <View key={i} style={[styles.progressSegment, { backgroundColor: BRAND.isDark ? '#292524' : '#E7E5E4' }, i <= step && { backgroundColor: BRAND.sunset }]} />
             ))}
           </View>
 
           {/* Step label */}
-          <Text style={styles.stepLabel}>
+          <Text style={[styles.stepLabel, { color: BRAND.textMuted }]}>
             Fine-tuning {step + 1} of {TOTAL_STEPS}
           </Text>
 
@@ -213,20 +214,20 @@ export function OnboardingScreen() {
             ]}
           >
             <Text style={styles.stepEmoji}>{currentStep.emoji}</Text>
-            <Text style={styles.title}>{currentStep.title}</Text>
-            <Text style={styles.subtitle}>{currentStep.subtitle}</Text>
+            <Text style={[styles.title, { color: BRAND.text }]}>{currentStep.title}</Text>
+            <Text style={[styles.subtitle, { color: BRAND.textMuted }]}>{currentStep.subtitle}</Text>
 
             <View style={styles.fieldsContainer}>
               {currentStep.fields.map((field) => (
                 <View key={field.key} style={styles.fieldWrapper}>
-                  <Text style={styles.fieldLabel}>{field.label}</Text>
-                  <View style={styles.inputRow}>
-                    <Text style={styles.dollarSign}>$</Text>
+                  <Text style={[styles.fieldLabel, { color: BRAND.textSecondary }]}>{field.label}</Text>
+                  <View style={[styles.inputRow, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }]}>
+                    <Text style={[styles.dollarSign, { color: BRAND.sunset }]}>$</Text>
                     <TextInput
-                      style={styles.input}
+                      style={[styles.input, { color: BRAND.text }]}
                       keyboardType="numeric"
                       placeholder={field.placeholder}
-                      placeholderTextColor="#78716C"
+                      placeholderTextColor={BRAND.textMuted}
                       value={formatCurrency(values[field.key])}
                       onChangeText={(text) => updateValue(field.key, text)}
                       returnKeyType="done"
@@ -236,7 +237,7 @@ export function OnboardingScreen() {
                     />
                   </View>
                   {field.hint && (
-                    <Text style={styles.fieldHint}>{field.hint}</Text>
+                    <Text style={[styles.fieldHint, { color: BRAND.textMuted }]}>{field.hint}</Text>
                   )}
                 </View>
               ))}
@@ -250,14 +251,14 @@ export function OnboardingScreen() {
           <View style={styles.buttonRow}>
             {step > 0 ? (
               <Pressable
-                style={styles.backButton}
+                style={[styles.backButton, { borderColor: BRAND.cardBorder }]}
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   handleBack();
                 }}
               >
-                <Ionicons name="arrow-back" size={18} color="#A8A29E" style={{ marginRight: 4 }} />
-                <Text style={styles.backButtonText}>Back</Text>
+                <Ionicons name="arrow-back" size={18} color={BRAND.textMuted} style={{ marginRight: 4 }} />
+                <Text style={[styles.backButtonText, { color: BRAND.textMuted }]}>Back</Text>
               </Pressable>
             ) : (
               <View style={styles.backPlaceholder} />
@@ -290,7 +291,6 @@ export function OnboardingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: BRAND.bg,
   },
   flex: {
     flex: 1,
@@ -310,13 +310,8 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 3,
     borderRadius: 2,
-    backgroundColor: '#E7E5E4',
-  },
-  progressFilled: {
-    backgroundColor: BRAND.sunset,
   },
   stepLabel: {
-    color: '#78716C',
     fontSize: 13,
     textAlign: 'center',
     marginBottom: 24,
@@ -331,7 +326,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   title: {
-    color: BRAND.text,
     fontSize: 28,
     fontWeight: '800',
     textAlign: 'center',
@@ -339,7 +333,6 @@ const styles = StyleSheet.create({
     lineHeight: 34,
   },
   subtitle: {
-    color: BRAND.textMuted,
     fontSize: 15,
     textAlign: 'center',
     marginBottom: 32,
@@ -353,7 +346,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   fieldLabel: {
-    color: BRAND.textSecondary,
     fontSize: 13,
     fontWeight: '600',
     textTransform: 'uppercase',
@@ -363,28 +355,23 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: BRAND.card,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     paddingHorizontal: 16,
     height: 60,
   },
   dollarSign: {
-    color: BRAND.sunset,
     fontSize: 24,
     fontWeight: '700',
     marginRight: 4,
   },
   input: {
     flex: 1,
-    color: BRAND.text,
     fontSize: 24,
     fontWeight: '600',
     paddingVertical: 0,
   },
   fieldHint: {
-    color: '#78716C',
     fontSize: 11,
     marginTop: 6,
     lineHeight: 16,
@@ -404,12 +391,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     flexDirection: 'row',
     alignItems: 'center',
   },
   backButtonText: {
-    color: BRAND.textMuted,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -418,7 +403,7 @@ const styles = StyleSheet.create({
   },
   nextButton: {
     flex: 1,
-    backgroundColor: BRAND.sunset,
+    backgroundColor: '#F97316',
     paddingVertical: 16,
     borderRadius: 14,
     alignItems: 'center',

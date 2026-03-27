@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { BRAND } from '../lib/theme';
+import { useTheme } from '../lib/theme';
 import { requestNotificationPermission, scheduleAllNotifications } from '../lib/notifications';
 import * as Haptics from 'expo-haptics';
 
@@ -11,6 +11,8 @@ interface NotificationPromptProps {
 }
 
 export function NotificationPrompt({ visible, onDismiss }: NotificationPromptProps) {
+  const BRAND = useTheme();
+
   const handleEnable = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     const granted = await requestNotificationPermission();
@@ -33,15 +35,15 @@ export function NotificationPrompt({ visible, onDismiss }: NotificationPromptPro
       onRequestClose={onDismiss}
     >
       <View style={styles.overlay}>
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: BRAND.card }]}>
           <View style={styles.iconRow}>
-            <View style={styles.iconBubble}>
+            <View style={[styles.iconBubble, { backgroundColor: BRAND.sunsetLight }]}>
               <Ionicons name="notifications" size={28} color={BRAND.sunset} />
             </View>
           </View>
 
-          <Text style={styles.title}>Stay on track</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, { color: BRAND.text }]}>Stay on track</Text>
+          <Text style={[styles.subtitle, { color: BRAND.textSecondary }]}>
             Get gentle reminders for daily challenges, weekly progress updates, and tips to move your freedom date closer.
           </Text>
 
@@ -52,7 +54,7 @@ export function NotificationPrompt({ visible, onDismiss }: NotificationPromptPro
           </View>
 
           <Pressable
-            style={({ pressed }) => [styles.enableButton, pressed && styles.enablePressed]}
+            style={({ pressed }) => [styles.enableButton, { backgroundColor: BRAND.sunset }, pressed && styles.enablePressed]}
             onPress={handleEnable}
             accessibilityRole="button"
             accessibilityLabel="Enable notifications"
@@ -67,7 +69,7 @@ export function NotificationPrompt({ visible, onDismiss }: NotificationPromptPro
             accessibilityRole="button"
             accessibilityLabel="Skip for now"
           >
-            <Text style={styles.skipText}>Maybe later</Text>
+            <Text style={[styles.skipText, { color: BRAND.textMuted }]}>Maybe later</Text>
           </Pressable>
         </View>
       </View>
@@ -76,10 +78,11 @@ export function NotificationPrompt({ visible, onDismiss }: NotificationPromptPro
 }
 
 function FeatureRow({ icon, text }: { icon: keyof typeof Ionicons.glyphMap; text: string }) {
+  const BRAND = useTheme();
   return (
     <View style={styles.featureRow}>
       <Ionicons name={icon} size={18} color={BRAND.primary} />
-      <Text style={styles.featureText}>{text}</Text>
+      <Text style={[styles.featureText, { color: BRAND.text }]}>{text}</Text>
     </View>
   );
 }
@@ -93,7 +96,6 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   card: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 28,
     width: '100%',
@@ -112,19 +114,16 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: BRAND.sunsetLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
   title: {
-    color: BRAND.text,
     fontSize: 22,
     fontWeight: '800',
     textAlign: 'center',
     marginBottom: 8,
   },
   subtitle: {
-    color: BRAND.textSecondary,
     fontSize: 14,
     lineHeight: 21,
     textAlign: 'center',
@@ -141,12 +140,10 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   featureText: {
-    color: BRAND.text,
     fontSize: 14,
     fontWeight: '500',
   },
   enableButton: {
-    backgroundColor: BRAND.sunset,
     paddingVertical: 14,
     paddingHorizontal: 28,
     borderRadius: 14,
@@ -168,7 +165,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   skipText: {
-    color: BRAND.textMuted,
     fontSize: 14,
     fontWeight: '500',
   },

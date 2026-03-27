@@ -13,6 +13,7 @@ import { initSentry, withSentry } from './src/lib/sentry';
 import { useSimStore } from './src/stores/useSimStore';
 import { refreshNotifications } from './src/lib/notifications';
 import { NotificationPrompt } from './src/components/NotificationPrompt';
+import { ThemeProvider, useTheme } from './src/lib/theme';
 
 // Initialize Sentry as early as possible
 initSentry();
@@ -20,7 +21,8 @@ initSentry();
 // Keep the native splash screen visible while we load
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
-function App() {
+function AppInner() {
+  const BRAND = useTheme();
   const [ready, setReady] = useState(false);
   const hasHydrated = useSimStore((s) => s._hasHydrated);
   const welcomeSeen = useSimStore((s) => s.welcomeSeen);
@@ -88,11 +90,13 @@ function App() {
     return () => clearTimeout(timer);
   }, [hideSplash]);
 
+  const statusBarStyle = BRAND.isDark ? 'light' : 'dark';
+
   if (!ready || !hasHydrated) {
     return (
-      <View style={styles.splash}>
-        <StatusBar style="dark" />
-        <Text style={styles.splashLogo}>
+      <View style={[styles.splash, { backgroundColor: BRAND.bg }]}>
+        <StatusBar style={statusBarStyle} />
+        <Text style={[styles.splashLogo, { color: BRAND.text }]}>
           Quit<Text style={styles.splashAccent}>Sim</Text>
         </Text>
         <ActivityIndicator
@@ -110,7 +114,7 @@ function App() {
     return (
       <ErrorBoundary>
         <SafeAreaProvider>
-          <StatusBar style="dark" />
+          <StatusBar style={statusBarStyle} />
           <WelcomeScreen onComplete={(numbers) => {
             if (numbers) {
               setProfile({
@@ -137,12 +141,12 @@ function App() {
       <SafeAreaProvider>
         {!onboarded ? (
           <>
-            <StatusBar style="dark" />
+            <StatusBar style={statusBarStyle} />
             <OnboardingScreen />
           </>
         ) : (
           <NavigationContainer>
-            <StatusBar style="dark" />
+            <StatusBar style={statusBarStyle} />
             <TabNavigator />
             <NotificationPrompt
               visible={showNotifPrompt}
@@ -155,18 +159,26 @@ function App() {
   );
 }
 
+function App() {
+  const themePreference = useSimStore((s) => s.themePreference);
+
+  return (
+    <ThemeProvider preference={themePreference}>
+      <AppInner />
+    </ThemeProvider>
+  );
+}
+
 // Wrap with Sentry for automatic error & performance tracking
 export default withSentry(App);
 
 const styles = StyleSheet.create({
   splash: {
     flex: 1,
-    backgroundColor: '#FFFBF7',
     justifyContent: 'center',
     alignItems: 'center',
   },
   splashLogo: {
-    color: '#1C1917',
     fontSize: 36,
     fontWeight: '800',
   },

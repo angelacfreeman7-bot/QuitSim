@@ -15,7 +15,7 @@ import { useSimStore } from '../stores/useSimStore';
 import { canSavePlan, canUseCouplesMode, FREE_PLAN_LIMIT } from '../lib/premium';
 import { UpgradePrompt } from '../components/UpgradePrompt';
 import { PressableCard } from '../components/PressableCard';
-import { BRAND } from '../lib/theme';
+import { useTheme } from '../lib/theme';
 import * as Haptics from 'expo-haptics';
 
 const formatCurrency = (v: number) =>
@@ -26,6 +26,7 @@ const formatCurrency = (v: number) =>
   }).format(v);
 
 export function LibraryScreen({ navigation }: any) {
+  const BRAND = useTheme();
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [upgradeFeature, setUpgradeFeature] = useState('');
   const {
@@ -63,7 +64,7 @@ export function LibraryScreen({ navigation }: any) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: BRAND.bg }]}>
       <UpgradePrompt
         visible={showUpgrade}
         onClose={() => setShowUpgrade(false)}
@@ -72,14 +73,14 @@ export function LibraryScreen({ navigation }: any) {
       <ScrollView contentContainerStyle={styles.scroll}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Saved Plans</Text>
+          <Text style={[styles.title, { color: BRAND.text }]}>Saved Plans</Text>
           <View style={styles.couplesRow}>
-            <Text style={styles.couplesLabel}>Couples</Text>
+            <Text style={[styles.couplesLabel, { color: BRAND.textSecondary }]}>Couples</Text>
             {canUseCouplesMode() ? (
               <Switch
                 value={couplesMode}
                 onValueChange={toggleCouplesMode}
-                trackColor={{ false: '#E7E5E4', true: '#4ade80' }}
+                trackColor={{ false: BRAND.isDark ? '#292524' : '#E7E5E4', true: '#4ade80' }}
                 thumbColor="#fff"
               />
             ) : (
@@ -95,8 +96,8 @@ export function LibraryScreen({ navigation }: any) {
 
         {/* Partner Financials */}
         {couplesMode && profile.partner && (
-          <View style={styles.partnerCard}>
-            <Text style={styles.partnerTitle}>Partner's Financials</Text>
+          <View style={[styles.partnerCard]}>
+            <Text style={[styles.partnerTitle, { color: BRAND.text }]}>Partner's Financials</Text>
             <PartnerSlider
               label="Partner Salary"
               value={profile.partner.salary}
@@ -136,12 +137,12 @@ export function LibraryScreen({ navigation }: any) {
         {plans.length === 0 ? (
           <View style={styles.empty}>
             <Text style={styles.emptyIcon}>🗺️</Text>
-            <Text style={styles.emptyText}>No saved plans yet</Text>
-            <Text style={styles.emptySubtext}>
+            <Text style={[styles.emptyText, { color: BRAND.textSecondary }]}>No saved plans yet</Text>
+            <Text style={[styles.emptySubtext, { color: BRAND.textMuted }]}>
               When you try different &ldquo;what if&rdquo; scenarios in the Explore tab, you can save your favorites here to compare them.
             </Text>
             <Pressable
-              style={styles.primaryButton}
+              style={[styles.primaryButton, { backgroundColor: BRAND.primary }]}
               onPress={() => navigation.navigate('Simulator')}
               accessibilityRole="button"
               accessibilityLabel="Create a simulation"
@@ -157,6 +158,7 @@ export function LibraryScreen({ navigation }: any) {
               onPress={() => loadPlan(plan.id)}
               style={[
                 styles.card,
+                { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder },
                 plan.locked && styles.cardLocked,
               ]}
             >
@@ -164,21 +166,21 @@ export function LibraryScreen({ navigation }: any) {
               <View style={styles.cardHeader}>
                 <View style={{ flex: 1 }}>
                   <View style={styles.nameRow}>
-                    <Text style={styles.planName}>{plan.name}</Text>
+                    <Text style={[styles.planName, { color: BRAND.text }]}>{plan.name}</Text>
                     {plan.locked && <Text style={styles.lockIcon}>🔒</Text>}
                   </View>
-                  <Text style={styles.planDate}>
+                  <Text style={[styles.planDate, { color: BRAND.textMuted }]}>
                     {new Date(plan.createdAt).toLocaleDateString()}
                   </Text>
                 </View>
                 <View style={styles.badges}>
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>
+                  <View style={[styles.badge, { borderColor: BRAND.cardBorder }]}>
+                    <Text style={[styles.badgeText, { color: BRAND.text }]}>
                       {plan.result.quitConfidence}%
                     </Text>
                   </View>
-                  <View style={[styles.badge, styles.badgeSecondary]}>
-                    <Text style={styles.badgeText}>
+                  <View style={[styles.badge, { borderColor: BRAND.cardBorder, backgroundColor: BRAND.cardBorder }]}>
+                    <Text style={[styles.badgeText, { color: BRAND.text }]}>
                       {plan.result.runwayMonths}mo
                     </Text>
                   </View>
@@ -188,20 +190,20 @@ export function LibraryScreen({ navigation }: any) {
               {/* Stats Grid */}
               <View style={styles.statsGrid}>
                 <View style={styles.statCell}>
-                  <Text style={styles.statLabel}>Income change</Text>
-                  <Text style={styles.statValue}>
+                  <Text style={[styles.statLabel, { color: BRAND.textMuted }]}>Income change</Text>
+                  <Text style={[styles.statValue, { color: BRAND.text }]}>
                     {plan.params.incomeDropPct}%
                   </Text>
                 </View>
                 <View style={styles.statCell}>
-                  <Text style={styles.statLabel}>New income</Text>
-                  <Text style={styles.statValue}>
+                  <Text style={[styles.statLabel, { color: BRAND.textMuted }]}>New income</Text>
+                  <Text style={[styles.statValue, { color: BRAND.text }]}>
                     ${(plan.params.newMonthlyIncome / 1000).toFixed(1)}k
                   </Text>
                 </View>
                 <View style={styles.statCell}>
-                  <Text style={styles.statLabel}>Survival rate</Text>
-                  <Text style={styles.statValue}>
+                  <Text style={[styles.statLabel, { color: BRAND.textMuted }]}>Survival rate</Text>
+                  <Text style={[styles.statValue, { color: BRAND.text }]}>
                     {plan.result.monteCarlo.successRate}%
                   </Text>
                 </View>
@@ -210,7 +212,7 @@ export function LibraryScreen({ navigation }: any) {
               {/* Actions */}
               <View style={styles.actions}>
                 <Pressable
-                  style={styles.iconButton}
+                  style={[styles.iconButton, { borderColor: BRAND.cardBorder }]}
                   onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); lockPlan(plan.id); }}
                 >
                   <Text style={styles.iconButtonText}>
@@ -220,6 +222,7 @@ export function LibraryScreen({ navigation }: any) {
                 <Pressable
                   style={[
                     styles.iconButton,
+                    { borderColor: BRAND.cardBorder },
                     plan.locked && styles.iconButtonDisabled,
                   ]}
                   onPress={() => {
@@ -260,11 +263,12 @@ function PartnerSlider({
   step: number;
   onChange: (v: number) => void;
 }) {
+  const BRAND = useTheme();
   return (
     <View style={styles.partnerSlider}>
       <View style={styles.partnerSliderHeader}>
-        <Text style={styles.partnerSliderLabel}>{label}</Text>
-        <Text style={styles.partnerSliderValue}>{formatCurrency(value)}</Text>
+        <Text style={[styles.partnerSliderLabel, { color: BRAND.textSecondary }]}>{label}</Text>
+        <Text style={[styles.partnerSliderValue, { color: BRAND.text }]}>{formatCurrency(value)}</Text>
       </View>
       <Slider
         style={{ width: '100%', height: 36 }}
@@ -282,7 +286,7 @@ function PartnerSlider({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: BRAND.bg },
+  container: { flex: 1 },
   scroll: { padding: 24 },
   header: {
     flexDirection: 'row',
@@ -290,9 +294,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
-  title: { color: BRAND.text, fontSize: 20, fontWeight: '700' },
+  title: { fontSize: 20, fontWeight: '700' },
   couplesRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  couplesLabel: { color: BRAND.textSecondary, fontSize: 12 },
+  couplesLabel: { fontSize: 12 },
   proBadge: {
     borderWidth: 1,
     borderColor: 'rgba(234, 179, 8, 0.3)',
@@ -312,16 +316,15 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 16,
   },
-  partnerTitle: { color: BRAND.text, fontSize: 14, fontWeight: '600', marginBottom: 12 },
+  partnerTitle: { fontSize: 14, fontWeight: '600', marginBottom: 12 },
   partnerSlider: { marginBottom: 12 },
   partnerSliderHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 2,
   },
-  partnerSliderLabel: { color: BRAND.textSecondary, fontSize: 12 },
+  partnerSliderLabel: { fontSize: 12 },
   partnerSliderValue: {
-    color: BRAND.text,
     fontSize: 12,
     fontWeight: '600',
     fontVariant: ['tabular-nums'],
@@ -330,10 +333,9 @@ const styles = StyleSheet.create({
   // Empty state
   empty: { alignItems: 'center', paddingTop: 60 },
   emptyIcon: { fontSize: 48, marginBottom: 12, opacity: 0.3 },
-  emptyText: { color: BRAND.textSecondary, fontSize: 16, marginBottom: 4 },
-  emptySubtext: { color: BRAND.textMuted, fontSize: 13, textAlign: 'center', marginBottom: 24 },
+  emptyText: { fontSize: 16, marginBottom: 4 },
+  emptySubtext: { fontSize: 13, textAlign: 'center', marginBottom: 24 },
   primaryButton: {
-    backgroundColor: BRAND.primary,
     borderRadius: 10,
     height: 44,
     paddingHorizontal: 24,
@@ -344,54 +346,48 @@ const styles = StyleSheet.create({
 
   // Plan card
   card: {
-    backgroundColor: BRAND.card,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
   },
   cardLocked: { borderColor: 'rgba(59, 130, 246, 0.3)' },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  planName: { color: BRAND.text, fontSize: 15, fontWeight: '600' },
+  planName: { fontSize: 15, fontWeight: '600' },
   lockIcon: { fontSize: 12 },
-  planDate: { color: BRAND.textMuted, fontSize: 11, marginTop: 2 },
+  planDate: { fontSize: 11, marginTop: 2 },
   badges: { flexDirection: 'row', gap: 6 },
   badge: {
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 3,
     alignSelf: 'flex-start',
   },
-  badgeSecondary: { backgroundColor: BRAND.cardBorder },
-  badgeText: { color: BRAND.text, fontSize: 11, fontWeight: '600', fontVariant: ['tabular-nums'] },
+  badgeText: { fontSize: 11, fontWeight: '600', fontVariant: ['tabular-nums'] },
 
   // Stats grid
   statsGrid: { flexDirection: 'row', marginBottom: 12 },
   statCell: { flex: 1, alignItems: 'center' },
-  statLabel: { color: BRAND.textMuted, fontSize: 10, marginBottom: 2 },
-  statValue: { color: BRAND.text, fontSize: 13, fontWeight: '600', fontVariant: ['tabular-nums'] },
+  statLabel: { fontSize: 10, marginBottom: 2 },
+  statValue: { fontSize: 13, fontWeight: '600', fontVariant: ['tabular-nums'] },
 
   // Actions
   actions: { flexDirection: 'row', gap: 8 },
   loadButton: {
     flex: 1,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     borderRadius: 8,
     height: 36,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  loadButtonText: { color: BRAND.text, fontSize: 13, fontWeight: '500' },
+  loadButtonText: { fontSize: 13, fontWeight: '500' },
   iconButton: {
     width: 36,
     height: 36,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',

@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useSimStore } from '../stores/useSimStore';
-import { BRAND } from '../lib/theme';
+import { useTheme } from '../lib/theme';
 import * as Haptics from 'expo-haptics';
 
 interface FieldConfig {
@@ -33,7 +33,7 @@ function formatCurrency(value: number): string {
   return value.toLocaleString('en-US');
 }
 
-const MAX_VALUE = 99_999_999; // Cap inputs at ~$100M to prevent overflow
+const MAX_VALUE = 99_999_999;
 
 function parseCurrency(text: string): number {
   const cleaned = text.replace(/[^0-9]/g, '');
@@ -42,6 +42,7 @@ function parseCurrency(text: string): number {
 }
 
 export function ProfileScreen({ navigation }: any) {
+  const BRAND = useTheme();
   const profile = useSimStore((s) => s.profile);
   const setProfile = useSimStore((s) => s.setProfile);
   const simulate = useSimStore((s) => s.simulate);
@@ -84,7 +85,7 @@ export function ProfileScreen({ navigation }: any) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: BRAND.bg }]}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -101,8 +102,8 @@ export function ProfileScreen({ navigation }: any) {
             </Pressable>
           </View>
 
-          <Text style={styles.title}>Your Profile</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, { color: BRAND.text }]}>Your Profile</Text>
+          <Text style={[styles.subtitle, { color: BRAND.textMuted }]}>
             Update your financial info to keep your simulation accurate.
           </Text>
 
@@ -113,15 +114,15 @@ export function ProfileScreen({ navigation }: any) {
               return (
                 <Pressable
                   key={field.key}
-                  style={[styles.fieldRow, isEditing && styles.fieldRowActive]}
+                  style={[styles.fieldRow, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }, isEditing && { borderColor: BRAND.primary }]}
                   onPress={() => setEditingField(field.key)}
                 >
-                  <Text style={styles.fieldLabel}>{field.label}</Text>
+                  <Text style={[styles.fieldLabel, { color: BRAND.textSecondary }]}>{field.label}</Text>
                   {isEditing ? (
                     <View style={styles.inputWrapper}>
-                      <Text style={styles.dollarSign}>$</Text>
+                      <Text style={[styles.dollarSign, { color: BRAND.textSecondary }]}>$</Text>
                       <TextInput
-                        style={styles.input}
+                        style={[styles.input, { color: BRAND.text }]}
                         keyboardType="numeric"
                         value={formatCurrency(values[field.key])}
                         onChangeText={(text) => updateValue(field.key, text)}
@@ -135,7 +136,7 @@ export function ProfileScreen({ navigation }: any) {
                       />
                     </View>
                   ) : (
-                    <Text style={styles.fieldValue}>
+                    <Text style={[styles.fieldValue, { color: BRAND.text }]}>
                       ${formatCurrency(values[field.key])}
                     </Text>
                   )}
@@ -166,7 +167,6 @@ export function ProfileScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: BRAND.bg,
   },
   flex: {
     flex: 1,
@@ -186,19 +186,12 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingRight: 16,
   },
-  backButtonText: {
-    color: '#888',
-    fontSize: 16,
-    fontWeight: '500',
-  },
   title: {
-    color: BRAND.text,
     fontSize: 28,
     fontWeight: '700',
     marginBottom: 8,
   },
   subtitle: {
-    color: BRAND.textMuted,
     fontSize: 15,
     marginBottom: 32,
     lineHeight: 21,
@@ -210,23 +203,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: BRAND.card,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     paddingHorizontal: 16,
     height: 60,
   },
-  fieldRowActive: {
-    borderColor: BRAND.primary,
-  },
   fieldLabel: {
-    color: BRAND.textSecondary,
     fontSize: 15,
     fontWeight: '500',
   },
   fieldValue: {
-    color: BRAND.text,
     fontSize: 20,
     fontWeight: '600',
     fontVariant: ['tabular-nums'],
@@ -236,13 +222,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dollarSign: {
-    color: BRAND.textSecondary,
     fontSize: 20,
     fontWeight: '600',
     marginRight: 2,
   },
   input: {
-    color: BRAND.text,
     fontSize: 20,
     fontWeight: '600',
     textAlign: 'right',
@@ -255,7 +239,7 @@ const styles = StyleSheet.create({
     minHeight: 32,
   },
   saveButton: {
-    backgroundColor: BRAND.primary,
+    backgroundColor: '#0EA5E9',
     borderRadius: 14,
     height: 56,
     width: '100%',

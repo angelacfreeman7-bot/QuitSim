@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { BRAND } from '../lib/theme';
+import { useTheme } from '../lib/theme';
 
 interface WeeklyProgressCardProps {
   confidenceScore: number;
@@ -18,33 +18,35 @@ function formatFreedomDate(iso: string | null): string {
   return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 }
 
-function getScoreColor(score: number): string {
-  if (score >= 70) return BRAND.success;
-  if (score >= 40) return BRAND.warning;
-  return BRAND.sunset;
-}
-
-function getChangeLabel(change: number): string {
-  if (change > 0) return `+${change}`;
-  if (change < 0) return `${change}`;
-  return '—';
-}
-
-function getChangeColor(change: number): string {
-  if (change > 0) return BRAND.success;
-  if (change < 0) return BRAND.danger;
-  return BRAND.textMuted;
-}
-
 export const WeeklyProgressCard = forwardRef<View, WeeklyProgressCardProps>(
   ({ confidenceScore, confidenceChange, runwayMonths, runwayChange, freedomDate, streakDays, weekNumber }, ref) => {
+    const BRAND = useTheme();
+
+    function getScoreColor(score: number): string {
+      if (score >= 70) return BRAND.success;
+      if (score >= 40) return BRAND.warning;
+      return BRAND.sunset;
+    }
+
+    function getChangeLabel(change: number): string {
+      if (change > 0) return `+${change}`;
+      if (change < 0) return `${change}`;
+      return '—';
+    }
+
+    function getChangeColor(change: number): string {
+      if (change > 0) return BRAND.success;
+      if (change < 0) return BRAND.danger;
+      return BRAND.textMuted;
+    }
+
     return (
-      <View ref={ref} collapsable={false} style={styles.card}>
+      <View ref={ref} collapsable={false} style={[styles.card, { backgroundColor: BRAND.bg, borderColor: BRAND.cardBorder }]}>
         <View style={styles.inner}>
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.branding}>QuitSim</Text>
-            <Text style={styles.weekLabel}>Week {weekNumber}</Text>
+            <Text style={[styles.branding, { color: BRAND.text }]}>QuitSim</Text>
+            <Text style={[styles.weekLabel, { color: BRAND.textMuted }]}>Week {weekNumber}</Text>
           </View>
 
           {/* Main score */}
@@ -59,40 +61,40 @@ export const WeeklyProgressCard = forwardRef<View, WeeklyProgressCardProps>(
                 </Text>
               </View>
             )}
-            <Text style={styles.scoreSubtitle}>Freedom Confidence</Text>
+            <Text style={[styles.scoreSubtitle, { color: BRAND.textMuted }]}>Freedom Confidence</Text>
           </View>
 
           {/* Stats grid */}
           <View style={styles.statsGrid}>
-            <View style={styles.statCard}>
+            <View style={[styles.statCard, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }]}>
               <Text style={styles.statEmoji}>🌅</Text>
-              <Text style={styles.statValue}>{formatFreedomDate(freedomDate)}</Text>
-              <Text style={styles.statLabel}>Freedom Date</Text>
+              <Text style={[styles.statValue, { color: BRAND.text }]}>{formatFreedomDate(freedomDate)}</Text>
+              <Text style={[styles.statLabel, { color: BRAND.textMuted }]}>Freedom Date</Text>
             </View>
 
-            <View style={styles.statCard}>
+            <View style={[styles.statCard, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }]}>
               <Text style={styles.statEmoji}>🛤️</Text>
               <View style={styles.statRow}>
-                <Text style={styles.statValue}>{runwayMonths} mo</Text>
+                <Text style={[styles.statValue, { color: BRAND.text }]}>{runwayMonths} mo</Text>
                 {runwayChange !== 0 && (
                   <Text style={[styles.statChange, { color: getChangeColor(runwayChange) }]}>
                     {getChangeLabel(runwayChange)}
                   </Text>
                 )}
               </View>
-              <Text style={styles.statLabel}>Runway</Text>
+              <Text style={[styles.statLabel, { color: BRAND.textMuted }]}>Runway</Text>
             </View>
 
-            <View style={styles.statCard}>
+            <View style={[styles.statCard, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }]}>
               <Text style={styles.statEmoji}>🔥</Text>
-              <Text style={styles.statValue}>{streakDays} days</Text>
-              <Text style={styles.statLabel}>Challenge Streak</Text>
+              <Text style={[styles.statValue, { color: BRAND.text }]}>{streakDays} days</Text>
+              <Text style={[styles.statLabel, { color: BRAND.textMuted }]}>Challenge Streak</Text>
             </View>
           </View>
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Text style={styles.footerText}>quitsim.it.com</Text>
+            <Text style={[styles.footerText, { color: BRAND.textMuted }]}>quitsim.it.com</Text>
           </View>
         </View>
       </View>
@@ -106,11 +108,9 @@ const styles = StyleSheet.create({
   card: {
     width: 375,
     height: 520,
-    backgroundColor: BRAND.bg,
     borderRadius: 20,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
   },
   inner: {
     flex: 1,
@@ -123,12 +123,10 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   branding: {
-    color: BRAND.text,
     fontSize: 18,
     fontWeight: '800',
   },
   weekLabel: {
-    color: BRAND.textMuted,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -153,7 +151,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   scoreSubtitle: {
-    color: BRAND.textMuted,
     fontSize: 14,
     fontWeight: '500',
     marginTop: 8,
@@ -163,10 +160,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   statCard: {
-    backgroundColor: BRAND.card,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     paddingHorizontal: 16,
     paddingVertical: 12,
     flexDirection: 'row',
@@ -183,7 +178,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   statValue: {
-    color: BRAND.text,
     fontSize: 16,
     fontWeight: '700',
     flex: 1,
@@ -193,7 +187,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   statLabel: {
-    color: BRAND.textMuted,
     fontSize: 12,
     fontWeight: '500',
   },
@@ -202,7 +195,6 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   footerText: {
-    color: BRAND.textMuted,
     fontSize: 12,
   },
 });

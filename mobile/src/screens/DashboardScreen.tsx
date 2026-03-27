@@ -15,8 +15,9 @@ import { MilestoneToast } from '../components/MilestoneToast';
 import { ConfidenceRing } from '../components/ConfidenceRing';
 import { WeeklyProgressBanner } from '../components/WeeklyProgressBanner';
 import { shareAsImage } from '../lib/shareImage';
+import { challengeShare } from '../lib/challengeShare';
 import { showRealityCheck } from '../lib/realityCheck';
-import { BRAND } from '../lib/theme';
+import { useTheme } from '../lib/theme';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import * as StoreReview from 'expo-store-review';
@@ -68,17 +69,23 @@ function getTimeEmoji(): string {
   return '🌙';
 }
 
-// Warm gradient colors based on confidence
-function getHeaderGradient(confidence: number): string[] {
-  if (confidence >= 70) return ['#ECFDF5', '#F0FDFA', BRAND.bg];
-  if (confidence >= 40) return ['#FFF7ED', '#FFFBF7', BRAND.bg];
-  return ['#FFF1F2', '#FFF8F7', BRAND.bg];
-}
-
 export function DashboardScreen({ navigation }: any) {
+  const BRAND = useTheme();
   const { result, simulate, profile, params, pendingMilestone, clearMilestone, disclaimerVisible, hideDisclaimerModal, simCount, streak, lastMilestone, weeklySnapshot, setParams, setProfile: storeSetProfile } = useSimStore();
 
   const [upgradeFeature, setUpgradeFeature] = React.useState<string | null>(null);
+
+  // Warm gradient colors based on confidence and theme
+  const getHeaderGradient = useCallback((confidence: number): string[] => {
+    if (BRAND.isDark) {
+      if (confidence >= 70) return ['#064E3B', '#042F2E', BRAND.bg];
+      if (confidence >= 40) return ['#431407', '#1C1917', BRAND.bg];
+      return ['#4C0519', '#1C1917', BRAND.bg];
+    }
+    if (confidence >= 70) return ['#ECFDF5', '#F0FDFA', BRAND.bg];
+    if (confidence >= 40) return ['#FFF7ED', '#FFFBF7', BRAND.bg];
+    return ['#FFF1F2', '#FFF8F7', BRAND.bg];
+  }, [BRAND]);
 
   const formattedFreedomDate = useMemo(() => {
     if (!result?.freedomDate) return null;
@@ -140,21 +147,6 @@ export function DashboardScreen({ navigation }: any) {
     }
   }, [result]);
 
-  if (!result) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <LinearGradient
-          colors={['#FFF7ED', '#FFFBF7', BRAND.bg]}
-          style={StyleSheet.absoluteFillObject}
-        />
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingEmoji}>🌅</Text>
-          <Text style={styles.loading}>Crunching your numbers...</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
   const handleTryScenario = useCallback((profileOverrides?: Partial<typeof profile>, paramOverrides?: Partial<typeof params>) => {
     // Apply overrides and navigate to the simulator so they can explore
     if (paramOverrides) setParams(paramOverrides);
@@ -162,17 +154,39 @@ export function DashboardScreen({ navigation }: any) {
     navigation.navigate('Simulator');
   }, [setParams, storeSetProfile, navigation]);
 
-  const handleShare = async () => {
+  const handleShare = useCallback(async () => {
+    if (!result) return;
     const fallbackText = `My QuitSim score: ${result.quitConfidence}% quit readiness, ${result.runwayMonths} months of runway. Find your freedom date at quitsim.it.com`;
     await shareAsImage(shareCardRef, fallbackText);
-  };
+  }, [result]);
+
+  const handleChallenge = useCallback(async () => {
+    if (!result) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    await challengeShare(result.quitConfidence);
+  }, [result]);
+
+  if (!result) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: BRAND.bg }]}>
+        <LinearGradient
+          colors={BRAND.isDark ? [BRAND.bg, BRAND.bg, BRAND.bg] : ['#FFF7ED', '#FFFBF7', BRAND.bg]}
+          style={StyleSheet.absoluteFillObject}
+        />
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingEmoji}>🌅</Text>
+          <Text style={[styles.loading, { color: BRAND.textSecondary }]}>Crunching your numbers...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const headerGradientColors = getHeaderGradient(result.quitConfidence);
   const isStrong = result.quitConfidence >= 70;
   const isMid = result.quitConfidence >= 40;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: BRAND.bg }]}>
       <DisclaimerModal
         visible={disclaimerVisible}
         onAccept={hideDisclaimerModal}
@@ -210,42 +224,47 @@ export function DashboardScreen({ navigation }: any) {
               accessibilityRole="button"
               accessibilityLabel="Settings"
             >
-              <Ionicons name="settings-outline" size={22} color="#A8A29E" />
+              <Ionicons name="settings-outline" size={22} color={BRAND.textMuted} />
             </Pressable>
           </View>
 
           {/* Greeting */}
-          <Text style={styles.greeting}>{getTimeOfDay()} {getTimeEmoji()}</Text>
-          <Text style={styles.motivation}>{getMotivation(result.quitConfidence)}</Text>
+          <Text style={[styles.greeting, { color: BRAND.textSecondary }]}>{getTimeOfDay()} {getTimeEmoji()}</Text>
+          <Text style={[styles.motivation, { color: BRAND.text }]}>{getMotivation(result.quitConfidence)}</Text>
 
           {/* ── Freedom Date — the hero moment ── */}
           <View style={[
             styles.freedomCard,
-            isStrong && styles.freedomCardStrong,
-            !isStrong && isMid && styles.freedomCardMid,
+            { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder },
+            isStrong && (BRAND.isDark
+              ? { borderColor: '#065F46', backgroundColor: '#064E3B' }
+              : { borderColor: '#A7F3D0', backgroundColor: '#ECFDF5', shadowColor: '#10B981', shadowOpacity: 0.12 }),
+            !isStrong && isMid && (BRAND.isDark
+              ? { borderColor: '#92400E', backgroundColor: '#78350F' }
+              : { borderColor: '#FDE68A', backgroundColor: '#FFFBEB', shadowColor: '#FBBF24', shadowOpacity: 0.12 }),
           ]}>
             {result.freedomDate ? (
               <>
                 <Text style={styles.freedomEmojiLarge}>🌅</Text>
-                <Text style={styles.freedomLabel}>Your Freedom Date</Text>
+                <Text style={[styles.freedomLabel, { color: BRAND.textMuted }]}>Your Freedom Date</Text>
                 <Text style={[
                   styles.freedomDate,
                   { color: isStrong ? BRAND.success : isMid ? BRAND.golden : BRAND.sunset },
                 ]}>
                   {formattedFreedomDate}
                 </Text>
-                <Text style={styles.freedomSubtitle}>
+                <Text style={[styles.freedomSubtitle, { color: BRAND.textSecondary }]}>
                   The earliest month you could quit and be okay
                 </Text>
               </>
             ) : (
               <>
                 <Text style={styles.freedomEmojiLarge}>🧭</Text>
-                <Text style={styles.freedomLabel}>Freedom Date</Text>
+                <Text style={[styles.freedomLabel, { color: BRAND.textMuted }]}>Freedom Date</Text>
                 <Text style={[styles.freedomDate, { color: BRAND.primary }]}>
                   Let's find your path
                 </Text>
-                <Text style={styles.freedomSubtitle}>
+                <Text style={[styles.freedomSubtitle, { color: BRAND.textSecondary }]}>
                   Try adjusting your numbers in the simulator — small changes can unlock a date
                 </Text>
               </>
@@ -280,15 +299,15 @@ export function DashboardScreen({ navigation }: any) {
             accessibilityRole="button"
             accessibilityLabel="What does this score mean?"
           >
-            <Text style={styles.confidenceExplainer}>What does this score mean?</Text>
+            <Text style={[styles.confidenceExplainer, { color: BRAND.primary }]}>What does this score mean?</Text>
           </Pressable>
         </View>
 
         {/* Reality Check banner */}
         {result.quitConfidence > 80 && (
-          <View style={styles.realityBanner}>
+          <View style={[styles.realityBanner, BRAND.isDark && { backgroundColor: '#422006', borderColor: '#92400E' }]}>
             <Text style={styles.realityIcon}>🔍</Text>
-            <Text style={styles.realityText}>
+            <Text style={[styles.realityText, BRAND.isDark && { color: '#FBBF24' }]}>
               A high score is great, but this is a simplified model. Scroll down to see what it doesn&apos;t include, and talk to a financial advisor before big decisions.
             </Text>
           </View>
@@ -307,17 +326,17 @@ export function DashboardScreen({ navigation }: any) {
 
         {/* ── Stats Row — warm cards ── */}
         <View style={styles.statsRow} accessibilityRole="summary">
-          <View style={styles.statCard} accessible accessibilityLabel={`${result.runwayMonths} months your money lasts`}>
-            <AnimatedNumber value={result.runwayMonths} style={styles.statValue} />
+          <View style={[styles.statCard, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }]} accessible accessibilityLabel={`${result.runwayMonths} months your money lasts`}>
+            <AnimatedNumber value={result.runwayMonths} style={[styles.statValue, { color: BRAND.text }]} />
             <View style={styles.inlineRow}>
-              <Text style={styles.statLabel}>Months covered</Text>
+              <Text style={[styles.statLabel, { color: BRAND.textMuted }]}>Months covered</Text>
               <InfoTip text="If you quit today, this is how many months your savings and any new income could cover your bills before running out." />
             </View>
           </View>
-          <View style={styles.statCard} accessible accessibilityLabel={`${result.monteCarlo.successRate} percent of what-if scenarios passed`}>
-            <AnimatedNumber value={result.monteCarlo.successRate} suffix="%" style={styles.statValue} />
+          <View style={[styles.statCard, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }]} accessible accessibilityLabel={`${result.monteCarlo.successRate} percent of what-if scenarios passed`}>
+            <AnimatedNumber value={result.monteCarlo.successRate} suffix="%" style={[styles.statValue, { color: BRAND.text }]} />
             <View style={styles.inlineRow}>
-              <Text style={styles.statLabel}>&ldquo;What if&rdquo; score</Text>
+              <Text style={[styles.statLabel, { color: BRAND.textMuted }]}>&ldquo;What if&rdquo; score</Text>
               <InfoTip text="We tested your plan hundreds of times with random bad luck — market drops, surprise expenses. This is how often your plan still worked. 80%+ means your plan is solid." />
             </View>
           </View>
@@ -341,48 +360,60 @@ export function DashboardScreen({ navigation }: any) {
         <AssumptionsCard />
 
         {/* ── CTAs — warm and inviting ── */}
-        <LinearGradient
-          colors={['rgba(14,165,233,0.08)', 'rgba(14,165,233,0.02)']}
-          style={styles.ctaGradient}
-        >
+        <View style={styles.ctaGradient}>
           <Pressable
-            style={styles.primaryButton}
             onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); navigation.navigate('Simulator'); }}
             accessibilityRole="button"
             accessibilityLabel="Explore what-if scenarios"
           >
-            <Ionicons name="trending-up" size={20} color="#fff" style={{ marginRight: 8 }} />
-            <Text style={styles.primaryButtonText}>Explore &ldquo;What If&rdquo; Scenarios</Text>
+            <LinearGradient
+              colors={['#0EA5E9', '#0284C7', '#0369A1']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.primaryButton}
+            >
+              <Ionicons name="trending-up" size={20} color="#fff" style={{ marginRight: 8 }} />
+              <Text style={styles.primaryButtonText}>Explore &ldquo;What If&rdquo; Scenarios</Text>
+            </LinearGradient>
           </Pressable>
-        </LinearGradient>
+        </View>
 
         <View style={styles.buttonRow}>
           <Pressable
-            style={styles.outlineButton}
+            style={[styles.outlineButton, { borderColor: BRAND.cardBorder }]}
             onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); navigation.navigate('Practice'); }}
             accessibilityRole="button"
             accessibilityLabel="Daily actions"
           >
             <Ionicons name="flash-outline" size={16} color={BRAND.golden} style={{ marginRight: 6 }} />
-            <Text style={styles.outlineButtonText}>Daily Actions</Text>
+            <Text style={[styles.outlineButtonText, { color: BRAND.text }]}>Daily Actions</Text>
           </Pressable>
           <Pressable
-            style={styles.outlineButton}
+            style={styles.challengeButton}
+            onPress={handleChallenge}
+            accessibilityRole="button"
+            accessibilityLabel="Challenge a friend"
+          >
+            <Ionicons name="trophy-outline" size={16} color="#D97706" style={{ marginRight: 6 }} />
+            <Text style={styles.challengeButtonText}>Challenge</Text>
+          </Pressable>
+          <Pressable
+            style={[styles.outlineButton, { borderColor: BRAND.cardBorder }]}
             onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); handleShare(); }}
             accessibilityRole="button"
             accessibilityLabel="Share your results"
           >
             <Ionicons name="share-outline" size={16} color={BRAND.primary} style={{ marginRight: 6 }} />
-            <Text style={styles.outlineButtonText}>Share</Text>
+            <Text style={[styles.outlineButtonText, { color: BRAND.text }]}>Share</Text>
           </Pressable>
         </View>
 
         {/* Footer */}
         <Pressable onPress={() => useSimStore.getState().showDisclaimerModal()}>
-          <Text style={styles.disclaimerLink}>Read Full Disclaimer</Text>
+          <Text style={[styles.disclaimerLink, { color: BRAND.textMuted }]}>Read Full Disclaimer</Text>
         </Pressable>
 
-        <Text style={styles.privacy}>
+        <Text style={[styles.privacy, { color: BRAND.textSecondary }]}>
           All calculations run on-device. Your data stays yours.
         </Text>
       </ScrollView>
@@ -402,7 +433,7 @@ export function DashboardScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: BRAND.bg },
+  container: { flex: 1 },
   scroll: { paddingBottom: 32 },
 
   // Header
@@ -414,12 +445,11 @@ const styles = StyleSheet.create({
   // Loading
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   loadingEmoji: { fontSize: 48, marginBottom: 12 },
-  loading: { color: BRAND.textSecondary, fontSize: 16, textAlign: 'center' },
+  loading: { fontSize: 16, textAlign: 'center' },
 
   // Greeting
-  greeting: { color: BRAND.textSecondary, fontSize: 15, marginBottom: 4 },
+  greeting: { fontSize: 15, marginBottom: 4 },
   motivation: {
-    color: BRAND.text,
     fontSize: 22,
     fontWeight: '700',
     marginBottom: 24,
@@ -429,31 +459,26 @@ const styles = StyleSheet.create({
 
   // Freedom Card — the hero
   freedomCard: {
-    backgroundColor: BRAND.card,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     borderRadius: 20,
     padding: 24,
     width: '100%',
     marginBottom: 8,
     alignItems: 'center',
-  },
-  freedomCardStrong: {
-    borderColor: '#A7F3D0',
-    backgroundColor: '#ECFDF5',
-  },
-  freedomCardMid: {
-    borderColor: '#FDE68A',
-    backgroundColor: '#FFFBEB',
+    shadowColor: '#F97316',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.10,
+    shadowRadius: 16,
+    elevation: 4,
   },
   freedomEmojiLarge: { fontSize: 36, marginBottom: 8 },
-  freedomLabel: { color: BRAND.textMuted, fontSize: 12, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 },
+  freedomLabel: { fontSize: 12, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 },
   freedomDate: { fontSize: 28, fontWeight: '800', marginBottom: 6 },
-  freedomSubtitle: { color: BRAND.textSecondary, fontSize: 13, textAlign: 'center' },
+  freedomSubtitle: { fontSize: 13, textAlign: 'center' },
 
   // Confidence
   gaugeContainer: { alignItems: 'center', marginBottom: 16, paddingHorizontal: 24 },
-  confidenceExplainer: { color: BRAND.primary, fontSize: 12, textDecorationLine: 'underline', marginTop: 8 },
+  confidenceExplainer: { fontSize: 12, textDecorationLine: 'underline', marginTop: 8 },
 
   // Reality banner
   realityBanner: {
@@ -475,15 +500,13 @@ const styles = StyleSheet.create({
   statsRow: { flexDirection: 'row', gap: 12, marginBottom: 16, paddingHorizontal: 24, width: '100%' },
   statCard: {
     flex: 1,
-    backgroundColor: BRAND.card,
     borderRadius: 16,
     padding: 18,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
   },
-  statValue: { color: BRAND.text, fontSize: 30, fontWeight: '800', fontVariant: ['tabular-nums'] },
-  statLabel: { color: BRAND.textMuted, fontSize: 11, marginTop: 4 },
+  statValue: { fontSize: 30, fontWeight: '800', fontVariant: ['tabular-nums'] },
+  statLabel: { fontSize: 11, marginTop: 4 },
   inlineRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
 
   // CTAs
@@ -492,13 +515,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 24,
     marginTop: 16,
     marginBottom: 12,
-    shadowColor: BRAND.primary,
+    shadowColor: '#0EA5E9',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
   },
   primaryButton: {
-    backgroundColor: BRAND.primary,
     borderRadius: 16,
     height: 54,
     width: '100%',
@@ -511,23 +533,33 @@ const styles = StyleSheet.create({
   outlineButton: {
     flex: 1,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     borderRadius: 14,
     height: 48,
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
   },
-  outlineButtonText: { color: BRAND.text, fontSize: 14, fontWeight: '500' },
+  outlineButtonText: { fontSize: 14, fontWeight: '500' },
+  challengeButton: {
+    flex: 1,
+    borderWidth: 1.5,
+    borderColor: '#FBBF24',
+    borderRadius: 14,
+    height: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    backgroundColor: 'rgba(251, 191, 36, 0.08)',
+  },
+  challengeButtonText: { color: '#D97706', fontSize: 14, fontWeight: '600' },
 
   // Footer
   disclaimerLink: {
-    color: BRAND.textMuted,
     fontSize: 12,
     textDecorationLine: 'underline',
     textAlign: 'center',
     marginBottom: 8,
   },
-  privacy: { color: BRAND.textSecondary, fontSize: 11, textAlign: 'center' },
+  privacy: { fontSize: 11, textAlign: 'center' },
   offScreen: { position: 'absolute', left: -9999, top: 0 },
 });

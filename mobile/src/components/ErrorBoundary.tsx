@@ -1,6 +1,6 @@
 import React, { Component, ErrorInfo } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { BRAND } from '../lib/theme';
+import { BRAND, BRAND_DARK } from '../lib/theme';
 import { captureError } from '../lib/sentry';
 
 interface Props {
@@ -13,6 +13,9 @@ interface State {
   error: Error | null;
 }
 
+// Note: ErrorBoundary is a class component and cannot use hooks.
+// It uses the static BRAND import for its fallback UI.
+// Since users rarely see this screen, it uses the light theme by default.
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);

@@ -9,9 +9,10 @@ import {
   PRO_PRODUCT_ID,
   SubscriptionStatus,
 } from '../lib/premium';
-import { BRAND } from '../lib/theme';
+import { useTheme } from '../lib/theme';
 
 export function RevenueCatTestScreen() {
+  const BRAND = useTheme();
   const [status, setStatus] = useState<SubscriptionStatus | null>(null);
   const [loading, setLoading] = useState('');
 
@@ -59,21 +60,21 @@ export function RevenueCatTestScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: BRAND.bg }]}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        <Text style={styles.title}>RevenueCat Test</Text>
-        <Text style={styles.subtitle}>Subscription diagnostics</Text>
+        <Text style={[styles.title, { color: BRAND.text }]}>RevenueCat Test</Text>
+        <Text style={[styles.subtitle, { color: BRAND.textSecondary }]}>Subscription diagnostics</Text>
 
         {/* Config info */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Configuration</Text>
+        <View style={[styles.card, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }]}>
+          <Text style={[styles.cardTitle, { color: BRAND.text }]}>Configuration</Text>
           <Row label="Entitlement" value={ENTITLEMENT_ID} />
           <Row label="Product ID" value={PRO_PRODUCT_ID} />
         </View>
 
         {/* Status */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Status</Text>
+        <View style={[styles.card, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }]}>
+          <Text style={[styles.cardTitle, { color: BRAND.text }]}>Status</Text>
           {status ? (
             <>
               <Row
@@ -91,10 +92,10 @@ export function RevenueCatTestScreen() {
                 value={status.annualPackage ? 'Found' : 'Not found'}
                 color={status.annualPackage ? BRAND.success : BRAND.warning}
               />
-              <Text style={styles.statusText}>{status.statusText}</Text>
+              <Text style={[styles.statusText, { color: BRAND.textMuted }]}>{status.statusText}</Text>
             </>
           ) : (
-            <Text style={styles.hint}>Tap "Load RevenueCat" to fetch status</Text>
+            <Text style={[styles.hint, { color: BRAND.textMuted }]}>Tap "Load RevenueCat" to fetch status</Text>
           )}
         </View>
 
@@ -103,7 +104,7 @@ export function RevenueCatTestScreen() {
           label="Load RevenueCat"
           onPress={handleLoad}
           loading={loading === 'load'}
-          style={styles.primaryBtn}
+          style={[styles.primaryBtn, { backgroundColor: BRAND.primary }]}
           textStyle={styles.primaryBtnText}
         />
         <ActionButton
@@ -111,15 +112,15 @@ export function RevenueCatTestScreen() {
           onPress={handlePurchase}
           loading={loading === 'purchase'}
           disabled={!status?.annualPackage}
-          style={styles.secondaryBtn}
+          style={[styles.secondaryBtn, { backgroundColor: BRAND.success }]}
           textStyle={styles.secondaryBtnText}
         />
         <ActionButton
           label="Restore Purchases"
           onPress={handleRestore}
           loading={loading === 'restore'}
-          style={styles.outlineBtn}
-          textStyle={styles.outlineBtnText}
+          style={[styles.outlineBtn, { borderColor: BRAND.cardBorder }]}
+          textStyle={[styles.outlineBtnText, { color: BRAND.text }]}
         />
       </ScrollView>
     </SafeAreaView>
@@ -127,10 +128,11 @@ export function RevenueCatTestScreen() {
 }
 
 function Row({ label, value, color }: { label: string; value: string; color?: string }) {
+  const BRAND = useTheme();
   return (
     <View style={styles.row}>
-      <Text style={styles.rowLabel}>{label}</Text>
-      <Text style={[styles.rowValue, color ? { color } : undefined]}>{value}</Text>
+      <Text style={[styles.rowLabel, { color: BRAND.textSecondary }]}>{label}</Text>
+      <Text style={[styles.rowValue, { color: color || BRAND.text }]}>{value}</Text>
     </View>
   );
 }
@@ -162,31 +164,28 @@ function ActionButton({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: BRAND.bg },
+  container: { flex: 1 },
   scroll: { padding: 24 },
-  title: { color: BRAND.text, fontSize: 20, fontWeight: '700', marginBottom: 4 },
-  subtitle: { color: BRAND.textSecondary, fontSize: 13, marginBottom: 24 },
+  title: { fontSize: 20, fontWeight: '700', marginBottom: 4 },
+  subtitle: { fontSize: 13, marginBottom: 24 },
   card: {
-    backgroundColor: BRAND.card,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
   },
-  cardTitle: { color: BRAND.text, fontSize: 14, fontWeight: '600', marginBottom: 12 },
+  cardTitle: { fontSize: 14, fontWeight: '600', marginBottom: 12 },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 6,
   },
-  rowLabel: { color: BRAND.textSecondary, fontSize: 13 },
-  rowValue: { color: BRAND.text, fontSize: 13, fontWeight: '600', fontFamily: 'Courier' },
-  statusText: { color: BRAND.textMuted, fontSize: 11, marginTop: 8 },
-  hint: { color: BRAND.textMuted, fontSize: 12, fontStyle: 'italic' },
+  rowLabel: { fontSize: 13 },
+  rowValue: { fontSize: 13, fontWeight: '600', fontFamily: 'Courier' },
+  statusText: { fontSize: 11, marginTop: 8 },
+  hint: { fontSize: 12, fontStyle: 'italic' },
   primaryBtn: {
-    backgroundColor: BRAND.primary,
     borderRadius: 12,
     height: 48,
     justifyContent: 'center',
@@ -195,7 +194,6 @@ const styles = StyleSheet.create({
   },
   primaryBtnText: { color: '#fff', fontSize: 15, fontWeight: '600' },
   secondaryBtn: {
-    backgroundColor: BRAND.success,
     borderRadius: 12,
     height: 48,
     justifyContent: 'center',
@@ -205,13 +203,12 @@ const styles = StyleSheet.create({
   secondaryBtnText: { color: '#fff', fontSize: 15, fontWeight: '600' },
   outlineBtn: {
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     borderRadius: 12,
     height: 48,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
   },
-  outlineBtnText: { color: BRAND.text, fontSize: 15, fontWeight: '500' },
+  outlineBtnText: { fontSize: 15, fontWeight: '500' },
   btnDisabled: { opacity: 0.4 },
 });

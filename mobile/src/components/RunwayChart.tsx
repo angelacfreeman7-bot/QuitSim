@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { MonthData } from '../types';
-import { BRAND } from '../lib/theme';
+import { useTheme } from '../lib/theme';
 
 const CHART_HEIGHT = 180;
 const BAR_COUNT = 36;
@@ -33,6 +33,7 @@ interface RunwayChartProps {
 }
 
 export function RunwayChart({ months }: RunwayChartProps) {
+  const BRAND = useTheme();
   if (!months || months.length === 0) return null;
 
   const values = months.slice(0, BAR_COUNT).map((m) => m.totalNetWorth);
@@ -56,16 +57,16 @@ export function RunwayChart({ months }: RunwayChartProps) {
 
   return (
     <View style={styles.wrapper}>
-      <Text style={styles.title}>How Long Your Money Lasts</Text>
-      <View style={styles.chartOuter}>
+      <Text style={[styles.title, { color: BRAND.text }]}>How Long Your Money Lasts</Text>
+      <View style={[styles.chartOuter, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }]}>
         {/* Y-axis labels */}
         <View style={styles.yAxis}>
           {maxPositive > 0 && (
-            <Text style={styles.yLabel}>{formatCurrency(maxPositive)}</Text>
+            <Text style={[styles.yLabel, { color: BRAND.textMuted }]}>{formatCurrency(maxPositive)}</Text>
           )}
           <View style={{ flex: 1 }} />
           {maxNegative > 0 && (
-            <Text style={styles.yLabel}>{formatCurrency(-maxNegative)}</Text>
+            <Text style={[styles.yLabel, { color: BRAND.textMuted }]}>{formatCurrency(-maxNegative)}</Text>
           )}
         </View>
 
@@ -75,7 +76,7 @@ export function RunwayChart({ months }: RunwayChartProps) {
           <View
             style={[
               styles.zeroLine,
-              { top: `${zeroLineFromTop * 100}%` as any },
+              { top: `${zeroLineFromTop * 100}%` as any, borderColor: BRAND.isDark ? '#44403C' : '#D6D3D1' },
             ]}
           />
 
@@ -109,15 +110,15 @@ export function RunwayChart({ months }: RunwayChartProps) {
 
           {/* X-axis labels */}
           <View style={styles.xAxis}>
-            <Text style={styles.xLabel}>Now</Text>
-            <Text style={styles.xLabel}>1yr</Text>
-            <Text style={styles.xLabel}>2yr</Text>
-            <Text style={styles.xLabel}>3yr</Text>
+            <Text style={[styles.xLabel, { color: BRAND.textMuted }]}>Now</Text>
+            <Text style={[styles.xLabel, { color: BRAND.textMuted }]}>1yr</Text>
+            <Text style={[styles.xLabel, { color: BRAND.textMuted }]}>2yr</Text>
+            <Text style={[styles.xLabel, { color: BRAND.textMuted }]}>3yr</Text>
           </View>
         </View>
       </View>
 
-      <Text style={styles.summary}>{getRunwaySummary(months)}</Text>
+      <Text style={[styles.summary, { color: BRAND.textSecondary }]}>{getRunwaySummary(months)}</Text>
     </View>
   );
 }
@@ -128,17 +129,14 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    color: '#1C1917',
     fontSize: 15,
     fontWeight: '600',
     marginBottom: 10,
   },
   chartOuter: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#F3EDE7',
     padding: 12,
     paddingBottom: 28, // room for x-axis labels
   },
@@ -148,7 +146,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   yLabel: {
-    color: '#78716C',
     fontSize: 9,
     fontVariant: ['tabular-nums'],
   },
@@ -163,7 +160,6 @@ const styles = StyleSheet.create({
     right: 0,
     height: 1,
     borderTopWidth: 1,
-    borderColor: '#D6D3D1',
     borderStyle: 'dashed',
   },
   xAxis: {
@@ -175,11 +171,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   xLabel: {
-    color: '#78716C',
     fontSize: 10,
   },
   summary: {
-    color: '#A8A29E',
     fontSize: 12,
     marginTop: 8,
     lineHeight: 17,

@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, Modal, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { BRAND } from '../lib/theme';
+import { useTheme } from '../lib/theme';
 
 interface InfoTipProps {
   text: string;
 }
 
 export function InfoTip({ text }: InfoTipProps) {
+  const BRAND = useTheme();
   const [visible, setVisible] = useState(false);
 
   return (
@@ -35,13 +36,13 @@ export function InfoTip({ text }: InfoTipProps) {
           accessibilityRole="button"
           accessibilityLabel="Close"
         >
-          <View style={styles.card} accessibilityRole="alert">
+          <View style={[styles.card, { backgroundColor: BRAND.card, borderColor: BRAND.cardBorder }]} accessibilityRole="alert">
             <View style={styles.cardHeader}>
               <Ionicons name="information-circle" size={20} color={BRAND.primary} />
-              <Text style={styles.cardTitle}>What does this mean?</Text>
+              <Text style={[styles.cardTitle, { color: BRAND.text }]}>What does this mean?</Text>
             </View>
-            <Text style={styles.cardText}>{text}</Text>
-            <Text style={styles.tapHint}>Tap anywhere to close</Text>
+            <Text style={[styles.cardText, { color: BRAND.textSecondary }]}>{text}</Text>
+            <Text style={[styles.tapHint, { color: BRAND.textMuted }]}>Tap anywhere to close</Text>
           </View>
         </Pressable>
       </Modal>
@@ -61,9 +62,7 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   card: {
-    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: BRAND.cardBorder,
     borderRadius: 16,
     padding: 20,
     maxWidth: 320,
@@ -80,17 +79,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   cardTitle: {
-    color: BRAND.text,
     fontSize: 16,
     fontWeight: '700',
   },
   cardText: {
-    color: BRAND.textSecondary,
     fontSize: 15,
     lineHeight: 23,
   },
   tapHint: {
-    color: BRAND.textMuted,
     fontSize: 12,
     textAlign: 'center',
     marginTop: 16,
