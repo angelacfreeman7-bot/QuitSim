@@ -51,7 +51,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     revenueCatApiKey: process.env.REVENUECAT_API_KEY ?? '',
     sentryDsn: process.env.SENTRY_DSN ?? '',
     eas: {
-      projectId: process.env.EAS_PROJECT_ID ?? '',
+      projectId: process.env.EAS_PROJECT_ID ?? '309e9fce-fdb7-4413-a994-aced12876ff5',
     },
   },
 });
